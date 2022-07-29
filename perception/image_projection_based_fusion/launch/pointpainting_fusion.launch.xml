@@ -18,7 +18,7 @@
   <arg name="input/camera_info7" default="/camera_info7"/>
   <arg name="input/pointcloud" default="/sensing/lidar/top/rectified/pointcloud"/>
   <arg name="output/objects" default="objects"/>
-  <arg name="model_name" default="pointpainting" description="options: `pointpainting`"/>
+  <arg name="model_name" default="waymo" description="options: `waymo`"/>
   <arg name="model_path" default="$(find-pkg-share image_projection_based_fusion)/data"/>
   <arg name="model_param_path" default="$(find-pkg-share image_projection_based_fusion)/config/$(var model_name).param.yaml"/>
 
@@ -67,7 +67,7 @@
       <remap from="~/output/objects" to="$(var output/objects)"/>
       <param name="score_threshold" value="0.45"/>
       <param name="densification_world_frame_id" value="map"/>
-      <param name="densification_num_past_frames" value="0"/>
+      <param name="densification_num_past_frames" value="2"/>
       <param name="trt_precision" value="fp16"/>
       <param name="encoder_onnx_path" value="$(var model_path)/pts_voxel_encoder_$(var model_name).onnx"/>
       <param name="encoder_engine_path" value="$(var model_path)/pts_voxel_encoder_$(var model_name).engine"/>
