@@ -311,6 +311,7 @@ void RouteHandler::setRouteLanelets(const lanelet::ConstLanelets & path_lanelets
   for (const auto & id : route_lanelets_id) {
     route_lanelets_.push_back(lanelet_map_ptr_->laneletLayer.get(id));
   }
+  is_handler_ready_ = true;
 }
 
 void RouteHandler::setLaneletsFromRouteMsg()
@@ -405,9 +406,9 @@ void RouteHandler::setPullOverGoalPose(
     lanelet::utils::getArcCoordinates({target_lane}, route_msg_.goal_pose);
   Path centerline_path = convertToPathFromPathWithLaneId(
     getCenterLinePath({target_lane}, 0.0, arc_position_goal.length + 10));
-  const auto seg_idx = tier4_autoware_utils::findNearestSegmentIndex(
-    centerline_path.points, route_msg_.goal_pose.position);
-  const double d_lat = tier4_autoware_utils::calcLongitudinalOffsetToSegment(
+  const auto seg_idx =
+    motion_utils::findNearestSegmentIndex(centerline_path.points, route_msg_.goal_pose.position);
+  const double d_lat = motion_utils::calcLongitudinalOffsetToSegment(
     centerline_path.points, seg_idx, route_msg_.goal_pose.position);
   const auto shoulder_point =
     tier4_autoware_utils::calcOffsetPose(centerline_path.points.at(seg_idx).pose, d_lat, 0.0, 0.0);
