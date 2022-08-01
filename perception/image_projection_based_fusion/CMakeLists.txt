@@ -181,11 +181,6 @@ else()
   message("Skipping build of some nodes due to missing dependencies")
 endif()
 
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "image_projection_based_fusion::PointpaintingFusionNode"
-  EXECUTABLE pointpainting_fusion_node
-)
-
 ament_auto_package(INSTALL_TO_SHARE
     launch
     config
