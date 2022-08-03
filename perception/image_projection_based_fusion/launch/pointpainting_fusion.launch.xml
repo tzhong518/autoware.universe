@@ -18,7 +18,7 @@
   <arg name="input/camera_info7" default="/camera_info7"/>
   <arg name="input/pointcloud" default="/sensing/lidar/top/rectified/pointcloud"/>
   <arg name="output/objects" default="objects"/>
-  <arg name="model_name" default="waymo" description="options: `waymo`"/>
+  <arg name="model_name" default="waymo_open_dataset" description="options: `waymo_open_dataset`"/>
   <arg name="model_path" default="$(find-pkg-share image_projection_based_fusion)/data"/>
   <arg name="model_param_path" default="$(find-pkg-share image_projection_based_fusion)/config/$(var model_name).param.yaml"/>
 
