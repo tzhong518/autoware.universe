@@ -14,6 +14,7 @@
 
 #include "obstacle_cruise_planner/node.hpp"
 
+#include "motion_utils/resample/resample.hpp"
 #include "motion_utils/trajectory/tmp_conversion.hpp"
 #include "obstacle_cruise_planner/polygon_utils.hpp"
 #include "obstacle_cruise_planner/utils.hpp"
@@ -75,57 +76,15 @@ bool isFrontObstacle(
   return true;
 }
 
-TrajectoryPoint calcLinearPoint(
-  const TrajectoryPoint & p_from, const TrajectoryPoint & p_to, const double length)
-{
-  TrajectoryPoint output;
-  const double dx = p_to.pose.position.x - p_from.pose.position.x;
-  const double dy = p_to.pose.position.y - p_from.pose.position.y;
-  const double norm = std::hypot(dx, dy);
-
-  output = p_to;
-  output.pose.position.x += length * dx / norm;
-  output.pose.position.y += length * dy / norm;
-
-  return output;
-}
-
-// TODO(murooka) replace with spline interpolation
 Trajectory decimateTrajectory(const Trajectory & input, const double step_length)
 {
   Trajectory output{};
 
-  if (input.points.empty()) {
+  if (input.points.size() < 2) {
     return output;
   }
 
-  double trajectory_length_sum = 0.0;
-  double next_length = 0.0;
-
-  constexpr double epsilon = 1e-3;
-  for (int i = 0; i < static_cast<int>(input.points.size()) - 1; ++i) {
-    const auto & p_front = input.points.at(i);
-    const auto & p_back = input.points.at(i + 1);
-
-    if (next_length <= trajectory_length_sum + epsilon) {
-      const auto p_interpolate =
-        calcLinearPoint(p_front, p_back, next_length - trajectory_length_sum);
-      output.points.push_back(p_interpolate);
-      next_length += step_length;
-      continue;
-    }
-
-    trajectory_length_sum += tier4_autoware_utils::calcDistance2d(p_front, p_back);
-  }
-
-  // avoid "Same points are given"
-  if (
-    !input.points.empty() && !output.points.empty() &&
-    epsilon < tier4_autoware_utils::calcDistance2d(input.points.back(), output.points.back())) {
-    output.points.push_back(input.points.back());
-  }
-
-  return output;
+  return motion_utils::resampleTrajectory(input, step_length);
 }
 
 PredictedPath getHighestConfidencePredictedPath(const PredictedObject & predicted_object)
@@ -727,17 +686,20 @@ std::vector<TargetObstacle> ObstacleCruisePlannerNode::filterObstacles(
     // calculate collision points
     const auto obstacle_polygon =
       tier4_autoware_utils::toPolygon2d(object_pose.pose, predicted_object.shape);
-    std::vector<geometry_msgs::msg::PointStamped> collision_points;
+    std::vector<geometry_msgs::msg::PointStamped> closest_collision_points;
     const auto first_within_idx = polygon_utils::getFirstCollisionIndex(
-      decimated_traj_polygons, obstacle_polygon, predicted_objects.header, collision_points);
+      decimated_traj_polygons, obstacle_polygon, predicted_objects.header,
+      closest_collision_points);
 
     // precise detection area filtering with polygons
-    geometry_msgs::msg::PointStamped nearest_collision_point;
+    std::vector<geometry_msgs::msg::PointStamped> collision_points;
     if (first_within_idx) {  // obstacles inside the trajectory
       // calculate nearest collision point
-      nearest_collision_point = calcNearestCollisionPoint(
-        first_within_idx.get(), collision_points, decimated_traj, is_driving_forward);
-      debug_data.collision_points.push_back(nearest_collision_point.point);
+      collision_points = calcNearestCollisionPoint(
+        first_within_idx.get(), closest_collision_points, decimated_traj, is_driving_forward);
+      if (!collision_points.empty()) {
+        debug_data.collision_points.push_back(collision_points.front().point);
+      }
 
       const bool is_angle_aligned = isAngleAlignedWithTrajectory(
         decimated_traj, object_pose.pose,
@@ -746,9 +708,9 @@ std::vector<TargetObstacle> ObstacleCruisePlannerNode::filterObstacles(
         std::abs(object_velocity) > obstacle_filtering_param_.crossing_obstacle_velocity_threshold;
 
       // ignore running vehicle crossing the ego trajectory with high speed with some condition
-      if (!is_angle_aligned && has_high_speed) {
+      if (!is_angle_aligned && has_high_speed && !collision_points.empty()) {
         const double collision_time_margin = calcCollisionTimeMargin(
-          current_pose, current_vel, nearest_collision_point.point, predicted_object,
+          current_pose, current_vel, collision_points.front().point, predicted_object,
           first_within_idx.get(), decimated_traj, decimated_traj_polygons, is_driving_forward);
         if (collision_time_margin > obstacle_filtering_param_.collision_time_margin) {
           // Ignore vehicle obstacles inside the trajectory, which is crossing the trajectory with
@@ -806,18 +768,18 @@ std::vector<TargetObstacle> ObstacleCruisePlannerNode::filterObstacles(
         continue;
       }
 
-      nearest_collision_point = calcNearestCollisionPoint(
+      collision_points = calcNearestCollisionPoint(
         collision_traj_poly_idx.get(), future_collision_points, decimated_traj, is_driving_forward);
-      debug_data.collision_points.push_back(nearest_collision_point.point);
+      if (!collision_points.empty()) {
+        debug_data.collision_points.push_back(collision_points.front().point);
+      }
     }
 
     // convert to obstacle type
-    const bool is_on_ego_traj = first_within_idx ? true : false;
     const double trajectory_aligned_adaptive_cruise =
       calcAlignedAdaptiveCruise(predicted_object, traj);
     const auto target_obstacle = TargetObstacle(
-      time_stamp, predicted_object, trajectory_aligned_adaptive_cruise, nearest_collision_point,
-      is_on_ego_traj);
+      time_stamp, predicted_object, trajectory_aligned_adaptive_cruise, collision_points);
     target_obstacles.push_back(target_obstacle);
   }
 
@@ -936,7 +898,7 @@ void ObstacleCruisePlannerNode::checkConsistency(
   }
 }
 
-geometry_msgs::msg::PointStamped ObstacleCruisePlannerNode::calcNearestCollisionPoint(
+std::vector<geometry_msgs::msg::PointStamped> ObstacleCruisePlannerNode::calcNearestCollisionPoint(
   const size_t & first_within_idx,
   const std::vector<geometry_msgs::msg::PointStamped> & collision_points,
   const Trajectory & decimated_traj, const bool is_driving_forward)
@@ -972,7 +934,7 @@ geometry_msgs::msg::PointStamped ObstacleCruisePlannerNode::calcNearestCollision
     }
   }
 
-  return collision_points.at(min_idx);
+  return {collision_points.at(min_idx)};
 }
 
 double ObstacleCruisePlannerNode::calcCollisionTimeMargin(
