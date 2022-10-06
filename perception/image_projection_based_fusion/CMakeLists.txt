@@ -156,6 +156,13 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     src/pointpainting_fusion/voxel_generator.cpp
   )
 
+  ament_auto_add_library(pointpainting_node_lib SHARED
+    src/pointpainting_node.cpp
+    src/pointpainting_fusion/pointpainting_trt.cpp
+    src/pointpainting_fusion/voxel_generator.cpp
+  )
+
+
   cuda_add_library(pointpainting_cuda_lib SHARED
     src/pointpainting_fusion/preprocess_kernel.cu
   )
@@ -172,9 +179,25 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     pointpainting_cuda_lib
   )
 
+  target_link_libraries(pointpainting_node_lib
+    ${OpenCV_LIBRARIES}
+    ${EIGEN3_LIBRARIES}
+    ${PCL_LIBRARIES}
+    ${NVINFER}
+    ${CUDA_LIBRARIES}
+    ${CUBLAS_LIBRARIES}
+    ${CUDA_curand_LIBRARY}
+    ${CUDNN_LIBRARY}
+    pointpainting_cuda_lib
+  )
+
   rclcpp_components_register_node(pointpainting_lib
     PLUGIN "image_projection_based_fusion::PointpaintingFusionNode"
     EXECUTABLE pointpainting_fusion_node
+  )
+  rclcpp_components_register_node(pointpainting_node_lib
+    PLUGIN "image_projection_based_fusion::PointpaintingNode"
+    EXECUTABLE pointpainting_node
   )
 
 else()
