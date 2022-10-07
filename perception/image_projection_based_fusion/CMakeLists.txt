@@ -117,7 +117,7 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
       else()
         message(STATUS "diff ${FILE_NAME}")
         message(STATUS "File hash changes. Downloading now ...")
-        file(DOWNLOAD https://awf.ml.dev.web.auto/perception/models/pointpainting/v1/${FILE_NAME}
+        file(DOWNLOAD https://awf.ml.dev.web.auto/perception/models/pointpainting/v2/${FILE_NAME}
                       ${FILE_PATH} STATUS DOWNLOAD_STATUS TIMEOUT 300)
         list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
         list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
@@ -125,7 +125,7 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     else()
       message(STATUS "not found ${FILE_NAME}")
       message(STATUS "File doesn't exists. Downloading now ...")
-      file(DOWNLOAD https://awf.ml.dev.web.auto/perception/models/pointpainting/v1/${FILE_NAME}
+      file(DOWNLOAD https://awf.ml.dev.web.auto/perception/models/pointpainting/v2/${FILE_NAME}
                     ${FILE_PATH} STATUS DOWNLOAD_STATUS TIMEOUT 300)
       list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
       list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
