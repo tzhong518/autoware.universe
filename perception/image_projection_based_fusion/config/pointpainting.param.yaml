@@ -8,3 +8,6 @@
     voxel_size: [0.32, 0.32, 8.0]
     downsample_factor: 1
     encoder_in_feature_size: 12
+    input_offset_ms: [30, 70, 25, 5, 35, 50]
+    timeout_sec: 0.01
+    match_threshold_ms: 50

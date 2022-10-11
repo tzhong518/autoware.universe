@@ -29,50 +29,39 @@ namespace image_projection_based_fusion
 PointpaintingFusionNode::PointpaintingFusionNode(const rclcpp::NodeOptions & options)
 : FusionNode<sensor_msgs::msg::PointCloud2, DetectedObjects>("pointpainting_fusion", options)
 {
-  const float score_threshold =
-    static_cast<float>(this->declare_parameter<double>("score_threshold", 0.4));
-  const float circle_nms_dist_threshold =
-    static_cast<float>(this->declare_parameter<double>("circle_nms_dist_threshold", 1.5));
-  // densification param
-  const std::string densification_world_frame_id =
-    this->declare_parameter("densification_world_frame_id", "map");
-  const int densification_num_past_frames =
-    this->declare_parameter("densification_num_past_frames", 0);
-  // network param
-  const std::string trt_precision = this->declare_parameter("trt_precision", "fp16");
-  const std::string encoder_onnx_path = this->declare_parameter("encoder_onnx_path", "");
-  const std::string encoder_engine_path = this->declare_parameter("encoder_engine_path", "");
-  const std::string head_onnx_path = this->declare_parameter("head_onnx_path", "");
-  const std::string head_engine_path = this->declare_parameter("head_engine_path", "");
-  class_names_ = this->declare_parameter<std::vector<std::string>>("class_names");
-  rename_car_to_truck_and_bus_ = this->declare_parameter("rename_car_to_truck_and_bus", false);
-  has_twist_ = this->declare_parameter("has_twist", false);
-  const std::size_t point_feature_size =
-    static_cast<std::size_t>(this->declare_parameter<std::int64_t>("point_feature_size"));
-  const std::size_t max_voxel_size =
-    static_cast<std::size_t>(this->declare_parameter<std::int64_t>("max_voxel_size"));
+  //   const float score_threshold =
+  //     static_cast<float>(this->declare_parameter<double>("score_threshold", 0.4));
+  //   const float circle_nms_dist_threshold =
+  //     static_cast<float>(this->declare_parameter<double>("circle_nms_dist_threshold", 1.5));
+  //   // densification param
+  //   const std::string densification_world_frame_id =
+  //     this->declare_parameter("densification_world_frame_id", "map");
+  //   const int densification_num_past_frames =
+  //     this->declare_parameter("densification_num_past_frames", 0);
+  //   // network param
+  //   const std::string trt_precision = this->declare_parameter("trt_precision", "fp16");
+  //   const std::string encoder_onnx_path = this->declare_parameter("encoder_onnx_path", "");
+  //   const std::string encoder_engine_path = this->declare_parameter("encoder_engine_path", "");
+  //   const std::string head_onnx_path = this->declare_parameter("head_onnx_path", "");
+  //   const std::string head_engine_path = this->declare_parameter("head_engine_path", "");
+  //   class_names_ = this->declare_parameter<std::vector<std::string>>("class_names");
+  //   rename_car_to_truck_and_bus_ = this->declare_parameter("rename_car_to_truck_and_bus", false);
+  //   has_twist_ = this->declare_parameter("has_twist", false);
+  //   const std::size_t point_feature_size =
+  //     static_cast<std::size_t>(this->declare_parameter<std::int64_t>("point_feature_size"));
+  //   const std::size_t max_voxel_size =
+  //     static_cast<std::size_t>(this->declare_parameter<std::int64_t>("max_voxel_size"));
   pointcloud_range = this->declare_parameter<std::vector<double>>("point_cloud_range");
-  const auto voxel_size = this->declare_parameter<std::vector<double>>("voxel_size");
-  const std::size_t downsample_factor =
-    static_cast<std::size_t>(this->declare_parameter<std::int64_t>("downsample_factor"));
-  const std::size_t encoder_in_feature_size =
-    static_cast<std::size_t>(this->declare_parameter<std::int64_t>("encoder_in_feature_size"));
+  //   const auto voxel_size = this->declare_parameter<std::vector<double>>("voxel_size");
+  //   const std::size_t downsample_factor =
+  //     static_cast<std::size_t>(this->declare_parameter<std::int64_t>("downsample_factor"));
+  //   const std::size_t encoder_in_feature_size =
+  //     static_cast<std::size_t>(this->declare_parameter<std::int64_t>("encoder_in_feature_size"));
 
-  centerpoint::NetworkParam encoder_param(encoder_onnx_path, encoder_engine_path, trt_precision);
-  centerpoint::NetworkParam head_param(head_onnx_path, head_engine_path, trt_precision);
-  centerpoint::DensificationParam densification_param(
-    densification_world_frame_id, densification_num_past_frames);
-  centerpoint::CenterPointConfig config(
-    class_names_.size(), point_feature_size, max_voxel_size, pointcloud_range, voxel_size,
-    downsample_factor, encoder_in_feature_size, score_threshold, circle_nms_dist_threshold);
-
-  // create detector
-  detector_ptr_ = std::make_unique<image_projection_based_fusion::PointPaintingTRT>(
-    encoder_param, head_param, densification_param, config);
-
-  // sub and pub
-  sub_.subscribe(this, "~/input/pointcloud", rmw_qos_profile_sensor_data);
-  obj_pub_ptr_ = this->create_publisher<DetectedObjects>("~/output/objects", rclcpp::QoS{1});
+  std::function<void(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg)> sub_callback =
+    std::bind(&PointpaintingFusionNode::subCallback, this, std::placeholders::_1);
+  sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "~/input/pointcloud", rclcpp::SensorDataQoS().keep_last(3), sub_callback);
 }
 
 void PointpaintingFusionNode::preprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg)
@@ -124,9 +113,10 @@ void PointpaintingFusionNode::preprocess(sensor_msgs::msg::PointCloud2 & painted
 
 void PointpaintingFusionNode::fuseOnSingleImage(
   __attribute__((unused)) const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg,
-  const std::size_t image_id, const DetectedObjectsWithFeature & input_roi_msg,
-  const sensor_msgs::msg::CameraInfo & camera_info,
-  sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg)
+  const std::size_t image_id __attribute__((unused)),
+  const DetectedObjectsWithFeature & input_roi_msg __attribute__((unused)),
+  const sensor_msgs::msg::CameraInfo & camera_info __attribute__((unused)),
+  sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg __attribute__((unused)))
 {
   std::vector<sensor_msgs::msg::RegionOfInterest> debug_image_rois;
   std::vector<Eigen::Vector2d> debug_image_points;
@@ -207,48 +197,23 @@ void PointpaintingFusionNode::fuseOnSingleImage(
             *iter_bic = 1.0;
             break;
         }
-        debug_image_points.push_back(normalized_projected_point);
+        // debug_image_points.push_back(normalized_projected_point);
       }
     }
   }
-  for (const auto & feature_object : input_roi_msg.feature_objects) {
-    debug_image_rois.push_back(feature_object.feature.roi);
-  }
+  // for (const auto & feature_object : input_roi_msg.feature_objects) {
+  //   debug_image_rois.push_back(feature_object.feature.roi);
+  // }
 
-  if (debugger_) {
-    debugger_->image_rois_ = debug_image_rois;
-    debugger_->obstacle_points_ = debug_image_points;
-    debugger_->publishImage(image_id, input_roi_msg.header.stamp);
-  }
+  // if (debugger_) {
+  //   debugger_->image_rois_ = debug_image_rois;
+  //   debugger_->obstacle_points_ = debug_image_points;
+  //   debugger_->publishImage(image_id, input_roi_msg.header.stamp);
+  // }
 }
 
-void PointpaintingFusionNode::postprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg)
-{
-  std::vector<centerpoint::Box3D> det_boxes3d;
-  bool is_success = detector_ptr_->detect(painted_pointcloud_msg, tf_buffer_, det_boxes3d);
-  if (!is_success) {
-    return;
-  }
-
-  autoware_auto_perception_msgs::msg::DetectedObjects output_obj_msg;
-  output_obj_msg.header = painted_pointcloud_msg.header;
-  for (const auto & box3d : det_boxes3d) {
-    if (box3d.score < score_threshold_) {
-      continue;
-    }
-    autoware_auto_perception_msgs::msg::DetectedObject obj;
-    centerpoint::box3DToDetectedObject(
-      box3d, class_names_, rename_car_to_truck_and_bus_, has_twist_, obj);
-    output_obj_msg.objects.emplace_back(obj);
-  }
-
-  obj_pub_ptr_->publish(output_obj_msg);
-}
-
-bool PointpaintingFusionNode::out_of_scope(__attribute__((unused)) const DetectedObjects & obj)
-{
-  return false;
-}
+// void PointpaintingFusionNode::postprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg)
+// {}
 
 }  // namespace image_projection_based_fusion
 

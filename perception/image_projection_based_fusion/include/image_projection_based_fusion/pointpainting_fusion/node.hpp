@@ -37,7 +37,12 @@ public:
   explicit PointpaintingFusionNode(const rclcpp::NodeOptions & options);
 
 protected:
-  void preprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg) override;
+  void preprocess(sensor_msgs::msg::PointCloud2 & pointcloud_msg) override;
+
+  //   void subCallback(const Msg & input_msg) override;
+
+  //   void roiCallback(
+  //     const DetectedObjectsWithFeature & input_roi_msg, const std::size_t roi_i) override;
 
   void fuseOnSingleImage(
     const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg, const std::size_t image_id,
@@ -45,21 +50,19 @@ protected:
     const sensor_msgs::msg::CameraInfo & camera_info,
     sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg) override;
 
-  void postprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg) override;
+  // void postprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg) override;
 
-  rclcpp::Publisher<DetectedObjects>::SharedPtr obj_pub_ptr_;
+  //   rclcpp::Publisher<DetectedObjects>::SharedPtr obj_pub_ptr_;
 
-  float score_threshold_{0.0};
-  std::vector<std::string> class_names_;
+  //   float score_threshold_{0.0};
+  //   std::vector<std::string> class_names_;
   std::vector<double> pointcloud_range;
-  bool rename_car_to_truck_and_bus_{false};
-  bool has_twist_{false};
+  //   bool rename_car_to_truck_and_bus_{false};
+  //   bool has_twist_{false};
 
-  std::unique_ptr<image_projection_based_fusion::PointPaintingTRT> detector_ptr_{nullptr};
+  //   std::unique_ptr<image_projection_based_fusion::PointPaintingTRT> detector_ptr_{nullptr};
 
-  bool out_of_scope(const DetectedObjects & obj);
+  //   bool out_of_scope(const DetectedObjects & obj);
 };
-
 }  // namespace image_projection_based_fusion
-
 #endif  // IMAGE_PROJECTION_BASED_FUSION__POINTPAINTING_FUSION__NODE_HPP_

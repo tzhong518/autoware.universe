@@ -17,6 +17,8 @@
 
 #include <image_projection_based_fusion/debugger.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <tier4_autoware_utils/ros/debug_publisher.hpp>
+#include <tier4_autoware_utils/system/stop_watch.hpp>
 
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -32,6 +34,8 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -39,6 +43,7 @@ namespace image_projection_based_fusion
 {
 using autoware_auto_perception_msgs::msg::DetectedObject;
 using autoware_auto_perception_msgs::msg::DetectedObjects;
+using sensor_msgs::msg::PointCloud2;
 using tier4_perception_msgs::msg::DetectedObjectsWithFeature;
 using tier4_perception_msgs::msg::DetectedObjectWithFeature;
 
@@ -46,23 +51,18 @@ template <class Msg, class ObjType>
 class FusionNode : public rclcpp::Node
 {
 public:
+  /** \brief constructor. */
   explicit FusionNode(const std::string & node_name, const rclcpp::NodeOptions & options);
+  /** \brief constructor.
+   * \param queue_size the maximum queue size
+   */
+  explicit FusionNode(
+    const std::string & node_name, const rclcpp::NodeOptions & options, int queue_size);
 
 protected:
   void cameraInfoCallback(
     const sensor_msgs::msg::CameraInfo::ConstSharedPtr input_camera_info_msg,
     const std::size_t camera_id);
-
-  void fusionCallback(
-    typename Msg::ConstSharedPtr input_msg,
-    DetectedObjectsWithFeature::ConstSharedPtr input_roi0_msg,
-    DetectedObjectsWithFeature::ConstSharedPtr input_roi1_msg,
-    DetectedObjectsWithFeature::ConstSharedPtr input_roi2_msg,
-    DetectedObjectsWithFeature::ConstSharedPtr input_roi3_msg,
-    DetectedObjectsWithFeature::ConstSharedPtr input_roi4_msg,
-    DetectedObjectsWithFeature::ConstSharedPtr input_roi5_msg,
-    DetectedObjectsWithFeature::ConstSharedPtr input_roi6_msg,
-    DetectedObjectsWithFeature::ConstSharedPtr input_roi7_msg);
 
   virtual void preprocess(Msg & output_msg);
 
@@ -71,10 +71,18 @@ protected:
     const DetectedObjectsWithFeature & input_roi_msg,
     const sensor_msgs::msg::CameraInfo & camera_info, Msg & output_msg) = 0;
 
+  virtual void subCallback(const typename Msg::ConstSharedPtr input_msg);
+
+  virtual void roiCallback(
+    const DetectedObjectsWithFeature::ConstSharedPtr input_roi_msg, const std::size_t roi_i);
+
   // set args if you need
-  virtual void postprocess(Msg & output_msg);
+  virtual void postprocess();
 
   void publish(const Msg & output_msg);
+
+  void timer_callback();
+  void setPeriod(const int64_t new_period);
 
   std::size_t rois_number_{1};
   tf2_ros::Buffer tf_buffer_;
@@ -84,33 +92,46 @@ protected:
   std::map<std::size_t, sensor_msgs::msg::CameraInfo> camera_info_map_;
   std::vector<rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr> camera_info_subs_;
 
-  // fusion
-  typename message_filters::Subscriber<Msg> sub_;
-  message_filters::PassThrough<DetectedObjectsWithFeature> passthrough_;
-  std::vector<std::shared_ptr<message_filters::Subscriber<DetectedObjectsWithFeature>>> rois_subs_;
-  inline void dummyCallback(DetectedObjectsWithFeature::ConstSharedPtr input)
-  {
-    passthrough_.add(input);
-  }
-  using SyncPolicy = message_filters::sync_policies::ApproximateTime<
-    Msg, DetectedObjectsWithFeature, DetectedObjectsWithFeature, DetectedObjectsWithFeature,
-    DetectedObjectsWithFeature, DetectedObjectsWithFeature, DetectedObjectsWithFeature,
-    DetectedObjectsWithFeature, DetectedObjectsWithFeature>;
-  using Sync = message_filters::Synchronizer<SyncPolicy>;
-  typename std::shared_ptr<Sync> sync_ptr_;
+  /** \brief The maximum number of messages that we can store in the queue. */
+  int maximum_queue_size_ = 3;
+
+  rclcpp::TimerBase::SharedPtr timer_;
+  //   diagnostic_updater::Updater updater_{this};
+  double timeout_sec_ = 0.01;
+  int match_threshold_ms_ = 50;
+  bool is_waiting_ = true;
+
+  /** \brief A vector of subscriber. */
+  typename rclcpp::Subscription<Msg>::SharedPtr sub_;
+  std::vector<rclcpp::Subscription<DetectedObjectsWithFeature>::SharedPtr> rois_subs_;
+
+  /** \brief Input point cloud topics. */
+  std::vector<std::string> input_topics_;
+  std::vector<int64_t> input_offset_ms_;
+
+  std::map<int64_t, typename Msg::ConstSharedPtr> sub_stdmap_;
+  std::map<int64_t, std::pair<int, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_;
+  // std::vector<std::map<int64_t, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_;
+  // std::vector<std::map<int64_t, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_tmp_;
+  std::mutex mutex_;
 
   // output
+  typename Msg::SharedPtr output_msg_;
   typename rclcpp::Publisher<Msg>::SharedPtr pub_ptr_;
 
   // debugger
-  std::shared_ptr<Debugger> debugger_;
-  virtual bool out_of_scope(const ObjType & obj) = 0;
-  float filter_scope_minx_;
-  float filter_scope_maxx_;
-  float filter_scope_miny_;
-  float filter_scope_maxy_;
-  float filter_scope_minz_;
-  float filter_scope_maxz_;
+  //   std::shared_ptr<Debugger> debugger_;
+  //   virtual bool out_of_scope(const ObjType & obj) = 0;
+  //   float filter_scope_minx_;
+  //   float filter_scope_maxx_;
+  //   float filter_scope_miny_;
+  //   float filter_scope_maxy_;
+  //   float filter_scope_minz_;
+  //   float filter_scope_maxz_;
+
+  /** \brief processing time publisher. **/
+  std::unique_ptr<tier4_autoware_utils::StopWatch<std::chrono::milliseconds>> stop_watch_ptr_;
+  std::unique_ptr<tier4_autoware_utils::DebugPublisher> debug_publisher_;
 };
 
 }  // namespace image_projection_based_fusion
