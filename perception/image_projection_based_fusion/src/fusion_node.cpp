@@ -79,9 +79,6 @@ FusionNode<Msg, ObjType>::FusionNode(
   for (std::size_t roi_i = 0; roi_i < rois_number_; ++roi_i) {
     std::function<void(const DetectedObjectsWithFeature::ConstSharedPtr msg)> roi_callback =
       std::bind(&FusionNode::roiCallback, this, std::placeholders::_1, roi_i);
-    // rois_subs_.at(roi_i) =
-    //   std::make_shared<message_filters::Subscriber<DetectedObjectsWithFeature>>(
-    //     this, "input/rois" + std::to_string(roi_i), rclcpp::QoS{1}.get_rmw_qos_profile());
     rois_subs_.at(roi_i) = this->create_subscription<DetectedObjectsWithFeature>(
       "input/rois" + std::to_string(roi_i), rclcpp::QoS{1}.best_effort(), roi_callback);
   }
@@ -173,22 +170,16 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
     std::size_t roi_i;
     if (roi_stdmap_.size() > 0) {
       for (const auto & [k, v] : roi_stdmap_) {
-        // auto iter = roi_stdmap_.end();
         int64_t newstamp = nanosec + input_offset_ms_.at(v.first) * (int64_t)1e6;
         int64_t interval = abs(int64_t(k) - newstamp);
-        // std::cout << k << " - " << newstamp << " = " << interval << std::endl;
+
         if (interval < min_interval && interval < match_threshold_ms_ * (int64_t)1e6) {
           min_interval = interval;
           matched_stamp = k;
           roi_i = v.first;
-          //     //   std::cout << "matched:" << min_interval << "|" << matched_stamp << std::endl;
-          //   }
-
-          // if (std::count(is_painted.begin(), is_painted.end(), true) == int(rois_number_)) {
-          //   break;
-          // }
         }
       }
+
       // fuseonSingle
       fuseOnSingleImage(
         *input_msg, roi_i, *(roi_stdmap_[matched_stamp].second), camera_info_map_.at(roi_i),
@@ -235,11 +226,11 @@ void FusionNode<Msg, Obj>::postprocess()
 template <class Msg, class Obj>
 void FusionNode<Msg, Obj>::timer_callback()
 {
+  is_waiting_ = false;
   std::cout << "timeout" << std::endl;
   using std::chrono_literals::operator""ms;
   timer_->cancel();
   if (mutex_.try_lock()) {
-    is_waiting_ = false;
     postprocess();
     // publish(output_msg);
     mutex_.unlock();
