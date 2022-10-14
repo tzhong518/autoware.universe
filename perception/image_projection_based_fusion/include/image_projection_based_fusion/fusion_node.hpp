@@ -77,7 +77,7 @@ protected:
     const DetectedObjectsWithFeature::ConstSharedPtr input_roi_msg, const std::size_t roi_i);
 
   // set args if you need
-  virtual void postprocess();
+  virtual void postprocess(Msg & output_msg);
 
   void publish(const Msg & output_msg);
 
@@ -109,14 +109,16 @@ protected:
   std::vector<std::string> input_topics_;
   std::vector<int64_t> input_offset_ms_;
 
-  std::map<int64_t, typename Msg::ConstSharedPtr> sub_stdmap_;
-  std::map<int64_t, std::pair<int, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_;
-  // std::vector<std::map<int64_t, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_;
+  std::vector<bool> is_fused_;
+  // std::map<int64_t, typename Msg::SharedPtr> sub_stdmap_;
+  std::pair<int64_t, typename Msg::SharedPtr> sub_stdpair_;
+  // std::map<int64_t, std::pair<int, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_;
+  std::vector<std::map<int64_t, DetectedObjectsWithFeature::ConstSharedPtr>> roi_stdmap_;
   // std::vector<std::map<int64_t, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_tmp_;
   std::mutex mutex_;
 
   // output
-  typename Msg::SharedPtr output_msg_;
+  // typename Msg::SharedPtr output_msg_;
   typename rclcpp::Publisher<Msg>::SharedPtr pub_ptr_;
 
   // debugger

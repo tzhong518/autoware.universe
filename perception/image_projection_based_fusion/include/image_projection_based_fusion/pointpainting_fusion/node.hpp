@@ -50,17 +50,17 @@ protected:
     const sensor_msgs::msg::CameraInfo & camera_info,
     sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg) override;
 
-  // void postprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg) override;
+  void postprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg) override;
 
-  //   rclcpp::Publisher<DetectedObjects>::SharedPtr obj_pub_ptr_;
+  rclcpp::Publisher<DetectedObjects>::SharedPtr obj_pub_ptr_;
 
-  //   float score_threshold_{0.0};
-  //   std::vector<std::string> class_names_;
+  float score_threshold_{0.0};
+  std::vector<std::string> class_names_;
   std::vector<double> pointcloud_range;
-  //   bool rename_car_to_truck_and_bus_{false};
-  //   bool has_twist_{false};
+  bool rename_car_to_truck_and_bus_{false};
+  bool has_twist_{false};
 
-  //   std::unique_ptr<image_projection_based_fusion::PointPaintingTRT> detector_ptr_{nullptr};
+  std::unique_ptr<image_projection_based_fusion::PointPaintingTRT> detector_ptr_{nullptr};
 
   //   bool out_of_scope(const DetectedObjects & obj);
 };
