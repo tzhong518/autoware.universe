@@ -66,15 +66,17 @@ protected:
 
   virtual void preprocess(Msg & output_msg);
 
+  // callback for Msg subscription
+  virtual void subCallback(const typename Msg::ConstSharedPtr input_msg);
+
+  // callback for roi subscription
+  virtual void roiCallback(
+    const DetectedObjectsWithFeature::ConstSharedPtr input_roi_msg, const std::size_t roi_i);
+
   virtual void fuseOnSingleImage(
     const Msg & input_msg, const std::size_t image_id,
     const DetectedObjectsWithFeature & input_roi_msg,
     const sensor_msgs::msg::CameraInfo & camera_info, Msg & output_msg) = 0;
-
-  virtual void subCallback(const typename Msg::ConstSharedPtr input_msg);
-
-  virtual void roiCallback(
-    const DetectedObjectsWithFeature::ConstSharedPtr input_roi_msg, const std::size_t roi_i);
 
   // set args if you need
   virtual void postprocess(Msg & output_msg);
@@ -91,15 +93,14 @@ protected:
   // camera_info
   std::map<std::size_t, sensor_msgs::msg::CameraInfo> camera_info_map_;
   std::vector<rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr> camera_info_subs_;
+  std::vector<double> tan_h_;  // horizontal field of view
 
   /** \brief The maximum number of messages that we can store in the queue. */
   int maximum_queue_size_ = 3;
 
   rclcpp::TimerBase::SharedPtr timer_;
-  //   diagnostic_updater::Updater updater_{this};
   double timeout_sec_ = 0.01;
   int match_threshold_ms_ = 50;
-  bool is_waiting_ = true;
 
   /** \brief A vector of subscriber. */
   typename rclcpp::Subscription<Msg>::SharedPtr sub_;
@@ -109,27 +110,24 @@ protected:
   std::vector<std::string> input_topics_;
   std::vector<int64_t> input_offset_ms_;
 
+  // cache for fusion
   std::vector<bool> is_fused_;
-  // std::map<int64_t, typename Msg::SharedPtr> sub_stdmap_;
   std::pair<int64_t, typename Msg::SharedPtr> sub_stdpair_;
-  // std::map<int64_t, std::pair<int, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_;
   std::vector<std::map<int64_t, DetectedObjectsWithFeature::ConstSharedPtr>> roi_stdmap_;
-  // std::vector<std::map<int64_t, DetectedObjectsWithFeature::SharedPtr>> roi_stdmap_tmp_;
   std::mutex mutex_;
 
-  // output
-  // typename Msg::SharedPtr output_msg_;
+  // output publisher
   typename rclcpp::Publisher<Msg>::SharedPtr pub_ptr_;
 
   // debugger
-  //   std::shared_ptr<Debugger> debugger_;
-  //   virtual bool out_of_scope(const ObjType & obj) = 0;
-  //   float filter_scope_minx_;
-  //   float filter_scope_maxx_;
-  //   float filter_scope_miny_;
-  //   float filter_scope_maxy_;
-  //   float filter_scope_minz_;
-  //   float filter_scope_maxz_;
+  std::shared_ptr<Debugger> debugger_;
+  virtual bool out_of_scope(const ObjType & obj) = 0;
+  float filter_scope_minx_;
+  float filter_scope_maxx_;
+  float filter_scope_miny_;
+  float filter_scope_maxy_;
+  float filter_scope_minz_;
+  float filter_scope_maxz_;
 
   /** \brief processing time publisher. **/
   std::unique_ptr<tier4_autoware_utils::StopWatch<std::chrono::milliseconds>> stop_watch_ptr_;

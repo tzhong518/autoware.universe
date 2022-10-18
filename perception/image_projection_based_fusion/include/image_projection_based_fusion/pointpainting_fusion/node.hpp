@@ -39,11 +39,6 @@ public:
 protected:
   void preprocess(sensor_msgs::msg::PointCloud2 & pointcloud_msg) override;
 
-  //   void subCallback(const Msg & input_msg) override;
-
-  //   void roiCallback(
-  //     const DetectedObjectsWithFeature & input_roi_msg, const std::size_t roi_i) override;
-
   void fuseOnSingleImage(
     const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg, const std::size_t image_id,
     const DetectedObjectsWithFeature & input_roi_msg,
@@ -62,7 +57,7 @@ protected:
 
   std::unique_ptr<image_projection_based_fusion::PointPaintingTRT> detector_ptr_{nullptr};
 
-  //   bool out_of_scope(const DetectedObjects & obj);
+  bool out_of_scope(const DetectedObjects & obj);
 };
 }  // namespace image_projection_based_fusion
 #endif  // IMAGE_PROJECTION_BASED_FUSION__POINTPAINTING_FUSION__NODE_HPP_

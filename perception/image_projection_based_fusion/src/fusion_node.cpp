@@ -67,6 +67,7 @@ FusionNode<Msg, ObjType>::FusionNode(
 
   // sub camera info
   camera_info_subs_.resize(rois_number_);
+  tan_h_.resize(rois_number_);
   for (std::size_t roi_i = 0; roi_i < rois_number_; ++roi_i) {
     std::function<void(const sensor_msgs::msg::CameraInfo::ConstSharedPtr msg)> fnc =
       std::bind(&FusionNode::cameraInfoCallback, this, std::placeholders::_1, roi_i);
@@ -96,33 +97,32 @@ FusionNode<Msg, ObjType>::FusionNode(
   // Set timer
   const auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(timeout_sec_));
-  std::cout << period_ns.count() << "|" << match_threshold_ms_ << std::endl;
   timer_ = rclcpp::create_timer(
     this, get_clock(), period_ns, std::bind(&FusionNode::timer_callback, this));
-  std::cout << "timer set:" << timer_->is_ready() << timer_->is_canceled() << std::endl;
 
   // debugger
-  //   if (declare_parameter("debug_mode", false)) {
-  //     std::size_t image_buffer_size =
-  //       static_cast<std::size_t>(declare_parameter("image_buffer_size", 15));
-  //     debugger_ = std::make_shared<Debugger>(this, rois_number_, image_buffer_size);
-  //   }
+  if (declare_parameter("debug_mode", false)) {
+    std::size_t image_buffer_size =
+      static_cast<std::size_t>(declare_parameter("image_buffer_size", 15));
+    debugger_ = std::make_shared<Debugger>(this, rois_number_, image_buffer_size);
+  }
+
   // initialize debug tool
   {
     using tier4_autoware_utils::DebugPublisher;
     using tier4_autoware_utils::StopWatch;
     stop_watch_ptr_ = std::make_unique<StopWatch<std::chrono::milliseconds>>();
-    debug_publisher_ = std::make_unique<DebugPublisher>(this, "concatenate_data_synchronizer");
+    debug_publisher_ = std::make_unique<DebugPublisher>(this, "fusion_node");
     stop_watch_ptr_->tic("cyclic_time");
     stop_watch_ptr_->tic("processing_time");
   }
 
-  //   filter_scope_minx_ = declare_parameter("filter_scope_minx", -100);
-  //   filter_scope_maxx_ = declare_parameter("filter_scope_maxx", 100);
-  //   filter_scope_miny_ = declare_parameter("filter_scope_miny", -100);
-  //   filter_scope_maxy_ = declare_parameter("filter_scope_maxy", 100);
-  //   filter_scope_minz_ = declare_parameter("filter_scope_minz", -100);
-  //   filter_scope_maxz_ = declare_parameter("filter_scope_maxz", 100);
+  filter_scope_minx_ = declare_parameter("filter_scope_minx", -100);
+  filter_scope_maxx_ = declare_parameter("filter_scope_maxx", 100);
+  filter_scope_miny_ = declare_parameter("filter_scope_miny", -100);
+  filter_scope_maxy_ = declare_parameter("filter_scope_maxy", 100);
+  filter_scope_minz_ = declare_parameter("filter_scope_minz", -100);
+  filter_scope_maxz_ = declare_parameter("filter_scope_maxz", 100);
 }
 
 template <class Msg, class Obj>
@@ -130,8 +130,10 @@ void FusionNode<Msg, Obj>::cameraInfoCallback(
   const sensor_msgs::msg::CameraInfo::ConstSharedPtr input_camera_info_msg,
   const std::size_t camera_id)
 {
-  // std::cout << camera_id << std::endl;
   camera_info_map_[camera_id] = *input_camera_info_msg;
+  auto fx = camera_info_map_[camera_id].k.at(0);
+  auto x0 = camera_info_map_[camera_id].k.at(2);
+  tan_h_[camera_id] = x0 / fx;
 }
 
 template <class Msg, class Obj>
@@ -152,7 +154,8 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "%s", ex.what());
   }
   timer_->reset();
-  std::cout << "subCallback reset:" << timer_->is_ready() << timer_->is_canceled() << std::endl;
+
+  stop_watch_ptr_->toc("processing_time", true);
 
   typename Msg::SharedPtr output_msg = std::make_shared<Msg>(*input_msg);
 
@@ -161,59 +164,77 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
   int64_t nanosec =
     (*output_msg).header.stamp.sec * (int64_t)1e9 + (*output_msg).header.stamp.nanosec;
 
-  // if matching rois exist, fuseonsingle(output_msg)
-  // std::vector<bool> is_painted(rois_number_, false);
-  // is_waiting_ = true;
-  std::cout << "----------\n"
-            << "sub nanosec:" << nanosec << "|"
-            << std::count(is_fused_.begin(), is_fused_.end(), true) << std::endl;
-
-  // std::cout << "roi_stdmap_.size():" << roi_stdmap_.size() << std::endl;
-  // std::size_t roi_i;
+  // if matching rois exist, fuseonsingle
   for (std::size_t roi_i = 0; roi_i < rois_number_; ++roi_i) {
     if (camera_info_map_.find(roi_i) == camera_info_map_.end()) {
       RCLCPP_WARN(this->get_logger(), "no camera info. id is %zu", roi_i);
       continue;
     }
-
     if ((roi_stdmap_.at(roi_i)).size() > 0) {
       int64_t min_interval = 1e9;
       int64_t matched_stamp = -1;
+      std::list<int64_t> outdate_stamps;
+
       for (const auto & [k, v] : roi_stdmap_.at(roi_i)) {
         int64_t newstamp = nanosec + input_offset_ms_.at(roi_i) * (int64_t)1e6;
         int64_t interval = abs(int64_t(k) - newstamp);
 
-        if (interval < min_interval && interval < match_threshold_ms_ * (int64_t)1e6) {
+        if (interval <= min_interval && interval <= match_threshold_ms_ * (int64_t)1e6) {
           min_interval = interval;
           matched_stamp = k;
+        } else if (int64_t(k) < newstamp && interval > match_threshold_ms_ * (int64_t)1e6) {
+          outdate_stamps.push_back(int64_t(k));
         }
+      }
+
+      // remove outdated stamps
+      for (auto stamp : outdate_stamps) {
+        (roi_stdmap_.at(roi_i)).erase(stamp);
       }
 
       // fuseonSingle
       if (matched_stamp != -1) {
-        std::cout << roi_i << ":" << matched_stamp << std::endl;
+        if (debugger_) {
+          debugger_->clear();
+        }
+
         fuseOnSingleImage(
           *input_msg, roi_i, *((roi_stdmap_.at(roi_i))[matched_stamp]), camera_info_map_.at(roi_i),
           *output_msg);
-        std::cout << "camera_info_map_.size():" << camera_info_map_.size() << std::endl;
         (roi_stdmap_.at(roi_i)).erase(matched_stamp);
         is_fused_.at(roi_i) = true;
+
+        // add timestamp interval for debug
+        if (debug_publisher_) {
+          double timestamp_intervel_ms = (matched_stamp - nanosec) / 1e6;
+          debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+            "debug/timestamp_intervel_ms/roi" + std::to_string(roi_i), timestamp_intervel_ms);
+          debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+            "debug/timestamp_intervel_offset_ms/roi" + std::to_string(roi_i),
+            timestamp_intervel_ms - input_offset_ms_.at(roi_i));
+        }
       }
     }
   }
-  // std::cout << "roi_stdmap_.size():" << roi_stdmap_.size() << " | "
-  //           << std::count(is_fused_.begin(), is_fused_.end(), true) << " | " << roi_i
-  //           << "| matched_stamp:" << matched_stamp << "| min_interval:" << min_interval
-  //           << std::endl;
+
+  // if all camera fused, postprocess; else, cache the Msg
   if (std::count(is_fused_.begin(), is_fused_.end(), true) == int(rois_number_)) {
     std::cout << "all subscribed" << std::endl;
     timer_->cancel();
     postprocess(*output_msg);
     publish(*output_msg);
     std::fill(is_fused_.begin(), is_fused_.end(), false);
+
+    // add processing time for debug
+    if (debug_publisher_) {
+      const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
+      const double processing_time_ms = stop_watch_ptr_->toc("processing_time", true);
+      debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+        "debug/cyclic_time_ms", cyclic_time_ms);
+      debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+        "debug/processing_time_ms", processing_time_ms);
+    }
   } else {
-    // sub_stdpair_ = std::make_pair<int64_t, typename Msg::SharedPtr>(int64_t(nanosec),
-    // output_msg);
     sub_stdpair_.first = int64_t(nanosec);
     sub_stdpair_.second = output_msg;
   }
@@ -225,18 +246,36 @@ void FusionNode<Msg, Obj>::roiCallback(
 {
   int64_t nanosec =
     (*input_roi_msg).header.stamp.sec * (int64_t)1e9 + (*input_roi_msg).header.stamp.nanosec;
-  // std::cout << roi_i << ":" << nanosec << std::endl;
 
+  // if cached Msg exist, try to match
   if (sub_stdpair_.second != nullptr) {
     int64_t newstamp = sub_stdpair_.first + input_offset_ms_.at(roi_i) * (int64_t)1e6;
     int64_t interval = abs(nanosec - newstamp);
 
     if (interval < match_threshold_ms_ * (int64_t)1e6 && is_fused_.at(roi_i) == false) {
-      std::cout << "roi interval:" << interval << std::endl;
+      if (camera_info_map_.find(roi_i) == camera_info_map_.end()) {
+        RCLCPP_WARN(this->get_logger(), "no camera info. id is %zu", roi_i);
+        (roi_stdmap_.at(roi_i))[nanosec] = input_roi_msg;
+        return;
+      }
+      if (debugger_) {
+        debugger_->clear();
+      }
+
       fuseOnSingleImage(
         *(sub_stdpair_.second), roi_i, *input_roi_msg, camera_info_map_.at(roi_i),
         *(sub_stdpair_.second));
       is_fused_.at(roi_i) = true;
+
+      if (debug_publisher_) {
+        double timestamp_intervel_ms = (nanosec - sub_stdpair_.first) / 1e6;
+        debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+          "debug/timestamp_intervel_ms/roi" + std::to_string(roi_i), timestamp_intervel_ms);
+        debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+          "debug/timestamp_intervel_offset_ms/roi" + std::to_string(roi_i),
+          timestamp_intervel_ms - input_offset_ms_.at(roi_i));
+      }
+
       if (std::count(is_fused_.begin(), is_fused_.end(), true) == int(rois_number_)) {
         std::cout << "all subscribed" << std::endl;
         timer_->cancel();
@@ -244,17 +283,24 @@ void FusionNode<Msg, Obj>::roiCallback(
         publish(*(sub_stdpair_.second));
         std::fill(is_fused_.begin(), is_fused_.end(), false);
         sub_stdpair_.second = nullptr;
+
+        // add processing time for debug
+        if (debug_publisher_) {
+          const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
+          debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+            "debug/cyclic_time_ms", cyclic_time_ms);
+        }
       }
       return;
     }
+    // store roi msg if not matched
+    (roi_stdmap_.at(roi_i))[nanosec] = input_roi_msg;
   }
-  (roi_stdmap_.at(roi_i))[nanosec] = input_roi_msg;
 }
 
 template <class Msg, class Obj>
 void FusionNode<Msg, Obj>::postprocess(Msg & output_msg __attribute__((unused)))
 {
-  // std::cout << "postprocess" << std::endl;
   // do nothing by default
 }
 
@@ -265,16 +311,22 @@ void FusionNode<Msg, Obj>::timer_callback()
   using std::chrono_literals::operator""ms;
   timer_->cancel();
   if (mutex_.try_lock()) {
+    // timeout, postprocess current msg
     if (sub_stdpair_.second != nullptr) {
       postprocess(*(sub_stdpair_.second));
       publish(*(sub_stdpair_.second));
     }
     std::fill(is_fused_.begin(), is_fused_.end(), false);
     sub_stdpair_.second = nullptr;
+
+    // add processing time for debug
+    if (debug_publisher_) {
+      const double cyclic_time_ms = stop_watch_ptr_->toc("cyclic_time", true);
+      debug_publisher_->publish<tier4_debug_msgs::msg::Float64Stamped>(
+        "debug/cyclic_time_ms", cyclic_time_ms);
+    }
+
     mutex_.unlock();
-    std::cout << "cancel:" << timer_->is_ready() << timer_->is_canceled() << std::endl;
-    // timer_->reset();
-    // std::cout << "reset:" << timer_->is_ready() << timer_->is_canceled() << std::endl;
   } else {
     try {
       std::chrono::nanoseconds period = 10ms;

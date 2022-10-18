@@ -155,22 +155,21 @@ void PointpaintingFusionNode::fuseOnSingleImage(
     camera_info.p.at(11);
 
   // transform
-  // std::cout << "iter:" << input_roi_msg.feature_objects.size() << std::endl;
   sensor_msgs::msg::PointCloud2 transformed_pointcloud;
   tf2::doTransform(painted_pointcloud_msg, transformed_pointcloud, transform_stamped);
 
   // iterate points
-  // sensor_msgs::PointCloud2Iterator<float> iter_painted_intensity(
-  //   painted_pointcloud_msg, "intensity");
   sensor_msgs::PointCloud2Iterator<float> iter_car(painted_pointcloud_msg, "CAR");
   sensor_msgs::PointCloud2Iterator<float> iter_ped(painted_pointcloud_msg, "PEDESTRIAN");
   sensor_msgs::PointCloud2Iterator<float> iter_bic(painted_pointcloud_msg, "BICYCLE");
 
   for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(transformed_pointcloud, "x"),
        iter_y(transformed_pointcloud, "y"), iter_z(transformed_pointcloud, "z");
-       iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z, ++iter_car, ++iter_ped,
-                               ++iter_bic) {  //++iter_painted_intensity,
-    if (*iter_z <= 0.0) {
+       iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z, ++iter_car, ++iter_ped, ++iter_bic) {
+    // filter the points outside of the horizontal field of view
+    if (
+      *iter_z <= 0.0 || (*iter_x / *iter_z) > tan_h_.at(image_id) ||
+      (*iter_x / *iter_z) < -tan_h_.at(image_id)) {
       continue;
     }
     // project
@@ -214,19 +213,21 @@ void PointpaintingFusionNode::fuseOnSingleImage(
             *iter_bic = 1.0;
             break;
         }
-        // debug_image_points.push_back(normalized_projected_point);
+      }
+      if (debugger_) {
+        debug_image_points.push_back(normalized_projected_point);
       }
     }
   }
-  // for (const auto & feature_object : input_roi_msg.feature_objects) {
-  //   debug_image_rois.push_back(feature_object.feature.roi);
-  // }
+  for (const auto & feature_object : input_roi_msg.feature_objects) {
+    debug_image_rois.push_back(feature_object.feature.roi);
+  }
 
-  // if (debugger_) {
-  //   debugger_->image_rois_ = debug_image_rois;
-  //   debugger_->obstacle_points_ = debug_image_points;
-  //   debugger_->publishImage(image_id, input_roi_msg.header.stamp);
-  // }
+  if (debugger_) {
+    debugger_->image_rois_ = debug_image_rois;
+    debugger_->obstacle_points_ = debug_image_points;
+    debugger_->publishImage(image_id, input_roi_msg.header.stamp);
+  }
 }
 
 void PointpaintingFusionNode::postprocess(sensor_msgs::msg::PointCloud2 & painted_pointcloud_msg)
@@ -252,6 +253,10 @@ void PointpaintingFusionNode::postprocess(sensor_msgs::msg::PointCloud2 & painte
   obj_pub_ptr_->publish(output_obj_msg);
 }
 
+bool PointpaintingFusionNode::out_of_scope(__attribute__((unused)) const DetectedObjects & obj)
+{
+  return false;
+}
 }  // namespace image_projection_based_fusion
 
 #include <rclcpp_components/register_node_macro.hpp>
