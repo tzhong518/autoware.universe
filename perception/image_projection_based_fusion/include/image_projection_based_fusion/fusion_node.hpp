@@ -108,7 +108,7 @@ protected:
 
   /** \brief Input point cloud topics. */
   std::vector<std::string> input_topics_;
-  std::vector<int64_t> input_offset_ms_;
+  std::vector<double> input_offset_ms_;
 
   // cache for fusion
   std::vector<bool> is_fused_;

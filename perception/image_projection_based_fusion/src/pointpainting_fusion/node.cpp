@@ -189,7 +189,6 @@ void PointpaintingFusionNode::fuseOnSingleImage(
         normalized_projected_point.y() <= roi.y_offset + roi.height &&
         feature_object.object.classification.front().label !=
           autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN) {
-        // *iter_car = 1.0;
         switch (feature_object.object.classification.front().label) {
           case autoware_auto_perception_msgs::msg::ObjectClassification::CAR:
             *iter_car = 1.0;

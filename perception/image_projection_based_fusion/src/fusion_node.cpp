@@ -59,7 +59,7 @@ FusionNode<Msg, ObjType>::FusionNode(
   // Set parameters
   match_threshold_ms_ = static_cast<int>(declare_parameter("match_threshold_ms", 50));
   timeout_sec_ = static_cast<double>(declare_parameter("timeout_sec", 0.1));
-  input_offset_ms_ = declare_parameter("input_offset_ms", std::vector<int64_t>{});
+  input_offset_ms_ = declare_parameter("input_offset_ms", std::vector<double>{});
   if (!input_offset_ms_.empty() && rois_number_ != input_offset_ms_.size()) {
     RCLCPP_ERROR(get_logger(), "The number of topics does not match the number of offsets.");
     return;
@@ -293,9 +293,9 @@ void FusionNode<Msg, Obj>::roiCallback(
       }
       return;
     }
-    // store roi msg if not matched
-    (roi_stdmap_.at(roi_i))[nanosec] = input_roi_msg;
   }
+  // store roi msg if not matched
+  (roi_stdmap_.at(roi_i))[nanosec] = input_roi_msg;
 }
 
 template <class Msg, class Obj>

@@ -138,8 +138,8 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
   endfunction()
 
   # default model
-  download(pts_voxel_encoder_pointpainting.onnx 795a919537b71faae706b8c71312d31a)
-  download(pts_backbone_neck_head_pointpainting.onnx edb48a74659820904071ea8050413c23)
+  download(pts_voxel_encoder_pointpainting.onnx 438dfecd962631ec8f011e0dfa2c6160)
+  download(pts_backbone_neck_head_pointpainting.onnx e590a0b2bdcd35e01340cf4521bf149e)
   find_package(OpenCV REQUIRED)
   find_package(Eigen3 REQUIRED)
 
