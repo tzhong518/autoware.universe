@@ -20,7 +20,6 @@
   <arg name="output/clusters" default="labeled_clusters"/>
   <arg name="param_path" default="$(find-pkg-share image_projection_based_fusion)/config/roi_fusion.param.yaml"/>
 
-
   <!-- for eval variable-->
   <arg name="input_rois_number" default="$(var input/rois_number)"/>
 
