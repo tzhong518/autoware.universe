@@ -34,5 +34,10 @@
       <push-ros-namespace namespace="planning_diagnostics"/>
       <include file="$(find-pkg-share tier4_planning_launch)/launch/planning_diagnostics/planning_error_monitor.launch.xml"/>
     </group>
+
+    <!-- planning evaluator -->
+    <group>
+      <include file="$(find-pkg-share planning_evaluator)/launch/planning_evaluator.launch.xml"/>
+    </group>
   </group>
 </launch>
