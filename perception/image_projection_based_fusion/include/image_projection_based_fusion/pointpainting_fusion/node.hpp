@@ -54,6 +54,8 @@ protected:
 
   float score_threshold_{0.0};
   std::vector<std::string> class_names_;
+  std::map<std::string, int> class_index_;
+  std::map<std::string, std::function<bool(int)>> isClassTable_;
   std::vector<double> pointcloud_range;
   bool has_twist_{false};
 

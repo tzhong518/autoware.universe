@@ -38,6 +38,7 @@ namespace
 const std::size_t MAX_POINT_IN_VOXEL_SIZE = 32;  // the same as max_point_in_voxel_size_ in config
 const std::size_t WARPS_PER_BLOCK = 4;
 const std::size_t ENCODER_IN_FEATURE_SIZE = 14;  // same as encoder_in_feature_size_ in config.hpp
+const int POINT_FEATURE_SIZE = 9;
 
 std::size_t divup(const std::size_t a, const std::size_t b)
 {
@@ -70,7 +71,6 @@ __global__ void generateFeatures_kernel(
   if (pillar_idx >= num_voxels) return;
 
   // load src
-  const int POINT_FEATURE_SIZE = 9;
   __shared__ float pillarSM[WARPS_PER_BLOCK][MAX_POINT_IN_VOXEL_SIZE][POINT_FEATURE_SIZE];
   __shared__ float3 pillarSumSM[WARPS_PER_BLOCK];
   __shared__ int3 cordsSM[WARPS_PER_BLOCK];
@@ -127,37 +127,22 @@ __global__ void generateFeatures_kernel(
     pillarOutSM[pillar_idx_inBlock][point_idx][1] = pillarSM[pillar_idx_inBlock][point_idx][1];
     pillarOutSM[pillar_idx_inBlock][point_idx][2] = pillarSM[pillar_idx_inBlock][point_idx][2];
     pillarOutSM[pillar_idx_inBlock][point_idx][3] = pillarSM[pillar_idx_inBlock][point_idx][3];
-    pillarOutSM[pillar_idx_inBlock][point_idx][4] = pillarSM[pillar_idx_inBlock][point_idx][4];
-    pillarOutSM[pillar_idx_inBlock][point_idx][5] = pillarSM[pillar_idx_inBlock][point_idx][5];
-    pillarOutSM[pillar_idx_inBlock][point_idx][6] = pillarSM[pillar_idx_inBlock][point_idx][6];
-    pillarOutSM[pillar_idx_inBlock][point_idx][7] = pillarSM[pillar_idx_inBlock][point_idx][7];
-    pillarOutSM[pillar_idx_inBlock][point_idx][8] = pillarSM[pillar_idx_inBlock][point_idx][8];
+    for (std::size_t i = 0; i < ENCODER_IN_FEATURE_SIZE - 9; ++i) {
+      pillarOutSM[pillar_idx_inBlock][point_idx][4+i] = pillarSM[pillar_idx_inBlock][point_idx][4+i];
+    }
 
     // change index
-    pillarOutSM[pillar_idx_inBlock][point_idx][9] = mean.x;
-    pillarOutSM[pillar_idx_inBlock][point_idx][10] = mean.y;
-    pillarOutSM[pillar_idx_inBlock][point_idx][11] = mean.z;
+    pillarOutSM[pillar_idx_inBlock][point_idx][ENCODER_IN_FEATURE_SIZE-5] = mean.x;
+    pillarOutSM[pillar_idx_inBlock][point_idx][ENCODER_IN_FEATURE_SIZE-4] = mean.y;
+    pillarOutSM[pillar_idx_inBlock][point_idx][ENCODER_IN_FEATURE_SIZE-3] = mean.z;
 
-    pillarOutSM[pillar_idx_inBlock][point_idx][12] = center.x;
-    pillarOutSM[pillar_idx_inBlock][point_idx][13] = center.y;
+    pillarOutSM[pillar_idx_inBlock][point_idx][ENCODER_IN_FEATURE_SIZE-2] = center.x;
+    pillarOutSM[pillar_idx_inBlock][point_idx][ENCODER_IN_FEATURE_SIZE-1] = center.y;
 
   } else {
-    pillarOutSM[pillar_idx_inBlock][point_idx][0] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][1] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][2] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][3] = 0;
-
-    pillarOutSM[pillar_idx_inBlock][point_idx][4] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][5] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][6] = 0;
-
-    pillarOutSM[pillar_idx_inBlock][point_idx][7] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][8] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][9] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][10] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][11] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][12] = 0;
-    pillarOutSM[pillar_idx_inBlock][point_idx][13] = 0;
+    for (std::size_t i = 0; i < ENCODER_IN_FEATURE_SIZE; ++i) {
+      pillarOutSM[pillar_idx_inBlock][point_idx][i] = 0;
+    }
   }
 
   __syncthreads();
