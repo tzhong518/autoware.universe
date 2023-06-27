@@ -208,12 +208,8 @@ void FusionNode<Msg, Obj>::subCallback(const typename Msg::ConstSharedPtr input_
   int64_t timestamp_nsec =
     (*output_msg).header.stamp.sec * (int64_t)1e9 + (*output_msg).header.stamp.nanosec;
 
-<<<<<<< HEAD
-  // if matching rois exist, fuseonsingle
-=======
   // if matching rois exist, fuseOnSingle
   // std::cout << "-----------" << timestamp_nsec << "--------------" << std::endl;
->>>>>>> f2a3b35ae (fix: multi thread)
   for (std::size_t roi_i = 0; roi_i < rois_number_; ++roi_i) {
     if (camera_info_map_.find(roi_i) == camera_info_map_.end()) {
       RCLCPP_WARN(this->get_logger(), "no camera info. id is %zu", roi_i);
