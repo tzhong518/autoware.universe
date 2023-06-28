@@ -1,4 +1,4 @@
-// Copyright 2023 TIER IV, Inc.
+// Copyright 2023 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #ifndef TENSORRT_YOLOX__PREPROCESS_HPP_
 #define TENSORRT_YOLOX__PREPROCESS_HPP_
 
@@ -23,6 +22,14 @@
 
 namespace tensorrt_yolox
 {
+typedef struct _roi
+{
+  int x;
+  int y;
+  int w;
+  int h;
+} Roi;
+
 /**
  * @brief Resize a image using bilinear interpolation on gpus
  * @param[out] dst Resized image
@@ -56,7 +63,7 @@ extern void letterbox_gpu(
   cudaStream_t stream);
 
 /**
- * @brief NHWC to NHWC conversion
+ * @brief NHWC2NHWC conversion
  * @param[out] dst converted image
  * @param[in] src image
  * @param[in] d_w width for a image
@@ -64,7 +71,7 @@ extern void letterbox_gpu(
  * @param[in] d_c channel for a image
  * @param[in] stream cuda stream
  */
-extern void nchw_to_nhwc_gpu(
+extern void NCHW2NHWC_gpu(
   unsigned char * dst, unsigned char * src, int d_w, int d_h, int d_c, cudaStream_t stream);
 
 /**
@@ -76,7 +83,7 @@ extern void nchw_to_nhwc_gpu(
  * @param[in] d_c channel for a image
  * @param[in] stream cuda stream
  */
-extern void to_float_gpu(
+extern void toFloat_gpu(
   float * dst32, unsigned char * src, int d_w, int d_h, int d_c, cudaStream_t stream);
 
 /**
@@ -109,9 +116,68 @@ extern void resize_bilinear_letterbox_gpu(
  * @param[in] norm normalization
  * @param[in] stream cuda stream
  */
-extern void resize_bilinear_letterbox_nhwc_to_nchw32_gpu(
+extern void resize_bilinear_letterbox_NHWC2NCHW32_gpu(
   float * dst, unsigned char * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c,
   float norm, cudaStream_t stream);
+
+/**
+ * @brief Optimized preprocessing including resize, letterbox, nhwc2nchw, toFloat and normalization
+ * with batching for YOLOX on gpus
+ * @param[out] dst processsed image
+ * @param[in] src image
+ * @param[in] d_w width for output
+ * @param[in] d_h height for output
+ * @param[in] d_c channel for output
+ * @param[in] s_w width for input
+ * @param[in] s_h height for input
+ * @param[in] s_c channel for input
+ * @param[in] batch batch size
+ * @param[in] norm normalization
+ * @param[in] stream cuda stream
+ */
+extern void resize_bilinear_letterbox_NHWC2NCHW32_batch_gpu(
+  float * dst, unsigned char * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c, int batch,
+  float norm, cudaStream_t stream);
+
+/**
+ * @brief Optimized preprocessing including crop, resize, letterbox, nhwc2nchw, toFloat and
+ * normalization with batching for YOLOX on gpus
+ * @param[out] dst processsed image
+ * @param[in] src image
+ * @param[in] d_w width for output
+ * @param[in] d_h height for output
+ * @param[in] d_c channel for output
+ * @param[in] s_w width for input
+ * @param[in] s_h height for input
+ * @param[in] s_c channel for input
+ * @param[in] d_roi regions of interest for cropping
+ * @param[in] batch batch size
+ * @param[in] norm normalization
+ * @param[in] stream cuda stream
+ */
+extern void crop_resize_bilinear_letterbox_NHWC2NCHW32_batch_gpu(
+  float * dst, unsigned char * src, int d_w, int d_h, int d_c, Roi * d_roi, int s_w, int s_h,
+  int s_c, int batch, float norm, cudaStream_t stream);
+
+/**
+ * @brief Optimized multi-scale preprocessing including crop, resize, letterbox, nhwc2nchw, toFloat
+ * and normalization with batching for YOLOX on gpus
+ * @param[out] dst processsed image
+ * @param[in] src image
+ * @param[in] d_w width for output
+ * @param[in] d_h height for output
+ * @param[in] d_c channel for output
+ * @param[in] s_w width for input
+ * @param[in] s_h height for input
+ * @param[in] s_c channel for input
+ * @param[in] d_roi regions of interest for cropping
+ * @param[in] batch batch size
+ * @param[in] norm normalization
+ * @param[in] stream cuda stream
+ */
+extern void multi_scale_resize_bilinear_letterbox_NHWC2NCHW32_batch_gpu(
+  float * dst, unsigned char * src, int d_w, int d_h, int d_c, Roi * d_roi, int s_w, int s_h,
+  int s_c, int batch, float norm, cudaStream_t stream);
 }  // namespace tensorrt_yolox
 
 #endif  // TENSORRT_YOLOX__PREPROCESS_HPP_
