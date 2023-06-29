@@ -29,6 +29,8 @@
 
 #include <chrono>
 
+static double t_sum = 0.0;
+static int t_counter = 0;
 namespace image_projection_based_fusion
 {
 
@@ -321,6 +323,16 @@ dc   | dc dc dc  dc ||zc|
 #endif
     }
   }
+  double msec = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(
+                  std::chrono::system_clock::now() - start)
+                  .count();
+  std::cout << "Parallelism :" << omp_get_max_threads() << std::endl;
+  std::cout << "#####Parallelism Time for iterator of projection : " << msec << " msec"
+            << std::endl;
+  t_counter++;
+  t_sum += msec;
+  std::cout << "#####Parallelism AVG time : " << t_sum / t_counter << " msec @" << t_counter
+            << std::endl;
 
   for (const auto & feature_object : input_roi_msg.feature_objects) {
     debug_image_rois.push_back(feature_object.feature.roi);
@@ -340,6 +352,9 @@ void PointPaintingFusionNode::postprocess(sensor_msgs::msg::PointCloud2 & painte
   if (objects_sub_count < 1) {
     return;
   }
+
+  std::chrono::system_clock::time_point start, end;
+  start = std::chrono::system_clock::now();
 
   std::vector<centerpoint::Box3D> det_boxes3d;
   bool is_success = detector_ptr_->detect(painted_pointcloud_msg, tf_buffer_, det_boxes3d);
@@ -364,6 +379,11 @@ void PointPaintingFusionNode::postprocess(sensor_msgs::msg::PointCloud2 & painte
   if (objects_sub_count > 0) {
     obj_pub_ptr_->publish(output_msg);
   }
+
+  end = std::chrono::system_clock::now();
+  auto time = end - start;
+  auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(time).count();
+  std::cout << "postprocess time: " << msec << " msec" << std::endl;
 }
 
 bool PointPaintingFusionNode::out_of_scope(__attribute__((unused)) const DetectedObjects & obj)
