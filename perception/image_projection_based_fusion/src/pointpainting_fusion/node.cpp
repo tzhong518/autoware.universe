@@ -255,9 +255,15 @@ void PointPaintingFusionNode::fuseOnSingleImage(
   }
 
   // transform
+  std::chrono::system_clock::time_point start_transform, end_transform;
+  start_transform = std::chrono::system_clock::now();
   sensor_msgs::msg::PointCloud2 transformed_pointcloud;
   tf2::doTransform(painted_pointcloud_msg, transformed_pointcloud, transform_stamped);
+  double msec_transform = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(
+                            std::chrono::system_clock::now() - start_transform)
+                            .count();
 
+  // paint
   std::chrono::system_clock::time_point start, end;
   start = std::chrono::system_clock::now();
 
@@ -326,13 +332,13 @@ dc   | dc dc dc  dc ||zc|
   double msec = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(
                   std::chrono::system_clock::now() - start)
                   .count();
-  std::cout << "Parallelism :" << omp_get_max_threads() << std::endl;
-  std::cout << "#####Parallelism Time for iterator of projection : " << msec << " msec"
-            << std::endl;
+  // std::cout << "Parallelism :" << omp_get_max_threads() << std::endl;
+  std::cout << "Parallelism Time for iterator of projection : " << msec << " msec" << std::endl;
   t_counter++;
   t_sum += msec;
-  std::cout << "#####Parallelism AVG time : " << t_sum / t_counter << " msec @" << t_counter
+  std::cout << "Parallelism AVG time : " << t_sum / t_counter << " msec @" << t_counter
             << std::endl;
+  std::cout << "Transform Time: " << msec_transform << " msec" << std::endl;
 
   for (const auto & feature_object : input_roi_msg.feature_objects) {
     debug_image_rois.push_back(feature_object.feature.roi);
@@ -383,7 +389,7 @@ void PointPaintingFusionNode::postprocess(sensor_msgs::msg::PointCloud2 & painte
   end = std::chrono::system_clock::now();
   auto time = end - start;
   auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(time).count();
-  std::cout << "postprocess time: " << msec << " msec" << std::endl;
+  std::cout << "#### postprocess_time_ms: " << msec << " msec" << std::endl;
 }
 
 bool PointPaintingFusionNode::out_of_scope(__attribute__((unused)) const DetectedObjects & obj)
