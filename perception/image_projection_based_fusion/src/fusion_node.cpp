@@ -34,8 +34,6 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #endif
 
-#include <typeinfo>
-
 // static int publish_counter = 0;
 static double processing_time_ms = 0;
 
