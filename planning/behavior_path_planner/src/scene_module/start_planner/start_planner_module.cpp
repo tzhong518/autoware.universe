@@ -106,6 +106,7 @@ void StartPlannerModule::processOnExit()
 
 bool StartPlannerModule::isExecutionRequested() const
 {
+  // TODO(Sugahara): if required lateral shift distance is small, don't engage this module.
   // Execute when current pose is near route start pose
   const Pose start_pose = planner_data_->route_handler->getOriginalStartPose();
   const Pose & current_pose = planner_data_->self_odometry->pose.pose;
@@ -138,7 +139,7 @@ bool StartPlannerModule::isExecutionRequested() const
 
 bool StartPlannerModule::isExecutionReady() const
 {
-  if (!status_.is_safe) {
+  if (!status_.is_safe_static_objects) {
     return false;
   }
 
