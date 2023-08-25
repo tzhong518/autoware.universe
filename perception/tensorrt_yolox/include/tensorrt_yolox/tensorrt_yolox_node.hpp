@@ -56,6 +56,7 @@ private:
 
   image_transport::Publisher image_pub_;
   image_transport::Publisher mask_pub_;
+  image_transport::Publisher color_mask_pub_;
 
   rclcpp::Publisher<tier4_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr objects_pub_;
 
