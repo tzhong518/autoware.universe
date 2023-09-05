@@ -271,7 +271,7 @@ bool GoalPlannerModule::isExecutionRequested() const
 
   const auto & route_handler = planner_data_->route_handler;
   const Pose & current_pose = planner_data_->self_odometry->pose.pose;
-  const Pose & goal_pose = route_handler->getOriginalGoalPose();
+  const Pose goal_pose = route_handler->getOriginalGoalPose();
 
   // check if goal_pose is in current_lanes.
   lanelet::ConstLanelet current_lane{};
@@ -1111,7 +1111,7 @@ bool GoalPlannerModule::isStuck()
 
 bool GoalPlannerModule::hasFinishedCurrentPath()
 {
-  const auto & current_path_end = getCurrentPath().points.back();
+  const auto current_path_end = getCurrentPath().points.back();
   const auto & self_pose = planner_data_->self_odometry->pose.pose;
   const bool is_near_target = tier4_autoware_utils::calcDistance2d(current_path_end, self_pose) <
                               parameters_->th_arrived_distance;

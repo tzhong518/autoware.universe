@@ -107,7 +107,7 @@ void StartPlannerModule::processOnExit()
 bool StartPlannerModule::isExecutionRequested() const
 {
   // Execute when current pose is near route start pose
-  const Pose & start_pose = planner_data_->route_handler->getOriginalStartPose();
+  const Pose start_pose = planner_data_->route_handler->getOriginalStartPose();
   const Pose & current_pose = planner_data_->self_odometry->pose.pose;
   if (
     tier4_autoware_utils::calcDistance2d(start_pose.position, current_pose.position) >
@@ -116,7 +116,7 @@ bool StartPlannerModule::isExecutionRequested() const
   }
 
   // Check if ego arrives at goal
-  const Pose & goal_pose = planner_data_->route_handler->getGoalPose();
+  const Pose goal_pose = planner_data_->route_handler->getGoalPose();
   if (
     tier4_autoware_utils::calcDistance2d(goal_pose.position, current_pose.position) <
     parameters_->th_arrived_distance) {
