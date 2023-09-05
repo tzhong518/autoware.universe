@@ -122,7 +122,8 @@ private:
   std::mutex mutex_;
 
   PathWithLaneId getFullPath() const;
-  std::vector<Pose> searchPullOutStartPoses();
+  PathWithLaneId calcStartPoseCandidatesBackwardPath() const;
+  std::vector<Pose> searchPullOutStartPoses(const PathWithLaneId & start_pose_candidates) const;
 
   std::shared_ptr<LaneDepartureChecker> lane_departure_checker_;
 
@@ -132,8 +133,8 @@ private:
   void incrementPathIndex();
   PathWithLaneId getCurrentPath() const;
   void planWithPriority(
-    const std::vector<Pose> & start_pose_candidates, const Pose & goal_pose,
-    const std::string search_priority);
+    const std::vector<Pose> & start_pose_candidates, const Pose & refined_start_pose,
+    const Pose & goal_pose, const std::string search_priority);
   PathWithLaneId generateStopPath() const;
   lanelet::ConstLanelets getPathRoadLanes(const PathWithLaneId & path) const;
   std::vector<DrivableLanes> generateDrivableLanes(const PathWithLaneId & path) const;
