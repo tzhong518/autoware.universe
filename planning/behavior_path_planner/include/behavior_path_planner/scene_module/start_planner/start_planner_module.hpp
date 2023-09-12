@@ -91,6 +91,7 @@ public:
   BehaviorModuleOutput plan() override;
   BehaviorModuleOutput planWaitingApproval() override;
   CandidateOutput planCandidate() const override;
+  void processOnEntry() override;
   void processOnExit() override;
 
   void setParameters(const std::shared_ptr<StartPlannerParameters> & parameters)
@@ -116,6 +117,9 @@ public:
   bool isFreespacePlanning() const { return status_.planner_type == PlannerType::FREESPACE; }
 
 private:
+
+  void initializeSafetyCheckParameters();
+
   std::shared_ptr<StartPlannerParameters> parameters_;
   mutable std::shared_ptr<EgoPredictedPathParams> ego_predicted_path_params_;
   mutable std::shared_ptr<ObjectsFilteringParams> objects_filtering_params_;

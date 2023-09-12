@@ -99,6 +99,14 @@ BehaviorModuleOutput StartPlannerModule::run()
   return plan();
 }
 
+void StartPlannerModule::processOnEntry()
+{
+  // Initialize safety checker
+  if (parameters_->safety_check_params.enable_safety_check) {
+    initializeSafetyCheckParameters();
+  }
+}
+
 void StartPlannerModule::processOnExit()
 {
   resetPathCandidate();
@@ -146,11 +154,6 @@ bool StartPlannerModule::isExecutionReady() const
   }
 
   if (status_.is_safe_static_objects && parameters_->safety_check_params.enable_safety_check) {
-    utils::start_goal_planner_common::updateEgoPredictedPathParams(
-      ego_predicted_path_params_, parameters_);
-    utils::start_goal_planner_common::updateSafetyCheckParams(safety_check_params_, parameters_);
-    utils::start_goal_planner_common::updateObjectsFilteringParams(
-      objects_filtering_params_, parameters_);
     if (!isSafePath()) {
       RCLCPP_ERROR_THROTTLE(getLogger(), *clock_, 5000, "Path is not safe against dynamic objects");
       return false;
@@ -267,6 +270,15 @@ BehaviorModuleOutput StartPlannerModule::plan()
 CandidateOutput StartPlannerModule::planCandidate() const
 {
   return CandidateOutput{};
+}
+
+void StartPlannerModule::initializeSafetyCheckParameters()
+{
+  utils::start_goal_planner_common::updateEgoPredictedPathParams(
+    ego_predicted_path_params_, parameters_);
+  utils::start_goal_planner_common::updateSafetyCheckParams(safety_check_params_, parameters_);
+  utils::start_goal_planner_common::updateObjectsFilteringParams(
+    objects_filtering_params_, parameters_);
 }
 
 PathWithLaneId StartPlannerModule::getFullPath() const
