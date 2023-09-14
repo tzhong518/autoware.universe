@@ -252,7 +252,9 @@ void GoalPlannerModule::initializeOccupancyGridMap()
 void GoalPlannerModule::processOnEntry()
 {
   // Initialize occupancy grid map
-  if (parameters_->use_occupancy_grid) {
+  if (
+    parameters_->use_occupancy_grid_for_goal_search ||
+    parameters_->use_occupancy_grid_for_path_collision_check) {
     initializeOccupancyGridMap();
   }
 }
@@ -1180,7 +1182,7 @@ TurnSignalInfo GoalPlannerModule::calcTurnSignalInfo() const
 
 bool GoalPlannerModule::checkCollision(const PathWithLaneId & path) const
 {
-  if (parameters_->use_occupancy_grid && occupancy_grid_map_) {
+  if (parameters_->use_occupancy_grid_for_path_collision_check && occupancy_grid_map_) {
     const bool check_out_of_range = false;
     if (occupancy_grid_map_->hasObstacleOnPath(path, check_out_of_range)) {
       return true;
