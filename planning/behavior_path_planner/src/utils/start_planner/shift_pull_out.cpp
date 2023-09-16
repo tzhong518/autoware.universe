@@ -294,8 +294,7 @@ std::vector<PullOutPath> ShiftPullOut::calcPullOutPaths(
       continue;
     }
 
-    shifted_path.path =
-      utils::removeInverseOrderPathPoints(shifted_path.path);
+    shifted_path.path = utils::removeInverseOrderPathPoints(shifted_path.path);
 
     // set velocity
     const size_t pull_out_end_idx =
