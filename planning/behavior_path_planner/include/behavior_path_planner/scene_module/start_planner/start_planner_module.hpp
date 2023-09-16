@@ -54,7 +54,8 @@ struct PullOutStatus
   PathWithLaneId backward_path{};
   lanelet::ConstLanelets pull_out_lanes{};
   bool is_safe{false};
-  bool back_finished{false};
+  bool back_finished{false};  // if backward driving is not required, this is also set to true
+                              // todo: rename to clear variable name.
   Pose pull_out_start_pose{};
 
   PullOutStatus() {}

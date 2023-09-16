@@ -16,7 +16,6 @@
 
 #include "behavior_path_planner/utils/path_safety_checker/objects_filtering.hpp"
 #include "behavior_path_planner/utils/path_utils.hpp"
-#include "behavior_path_planner/utils/start_goal_planner_common/utils.hpp"
 #include "behavior_path_planner/utils/start_planner/util.hpp"
 #include "behavior_path_planner/utils/utils.hpp"
 
@@ -296,7 +295,7 @@ std::vector<PullOutPath> ShiftPullOut::calcPullOutPaths(
     }
 
     shifted_path.path =
-      utils::start_goal_planner_common::removeInverseOrderPathPoints(shifted_path.path);
+      utils::removeInverseOrderPathPoints(shifted_path.path);
 
     // set velocity
     const size_t pull_out_end_idx =

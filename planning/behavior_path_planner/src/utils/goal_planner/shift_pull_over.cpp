@@ -172,7 +172,7 @@ boost::optional<PullOverPath> ShiftPullOver::generatePullOverPath(
   }
 
   shifted_path.path =
-    utils::start_goal_planner_common::removeInverseOrderPathPoints(shifted_path.path);
+    utils::removeInverseOrderPathPoints(shifted_path.path);
 
   // set the same z as the goal
   for (auto & p : shifted_path.path.points) {
