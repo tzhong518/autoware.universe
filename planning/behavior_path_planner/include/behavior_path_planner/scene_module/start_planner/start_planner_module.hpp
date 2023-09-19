@@ -117,7 +117,6 @@ public:
   bool isFreespacePlanning() const { return status_.planner_type == PlannerType::FREESPACE; }
 
 private:
-
   void initializeSafetyCheckParameters();
 
   std::shared_ptr<StartPlannerParameters> parameters_;

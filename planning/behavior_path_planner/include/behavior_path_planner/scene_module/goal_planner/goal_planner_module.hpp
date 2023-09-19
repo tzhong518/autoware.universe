@@ -137,7 +137,6 @@ public:
   CandidateOutput planCandidate() const override { return CandidateOutput{}; };
 
 private:
-
   PullOverStatus status_;
 
   mutable StartGoalPlannerData goal_planner_data_;
