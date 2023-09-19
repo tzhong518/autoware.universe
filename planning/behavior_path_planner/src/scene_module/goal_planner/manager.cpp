@@ -35,7 +35,6 @@ GoalPlannerModuleManager::GoalPlannerModuleManager(
   // general params
   {
     std::string ns = "goal_planner.";
-    p.minimum_request_length = node->declare_parameter<double>(ns + "minimum_request_length");
     p.th_stopped_velocity = node->declare_parameter<double>(ns + "th_stopped_velocity");
     p.th_arrived_distance = node->declare_parameter<double>(ns + "th_arrived_distance");
     p.th_stopped_time = node->declare_parameter<double>(ns + "th_stopped_time");
@@ -73,9 +72,12 @@ GoalPlannerModuleManager::GoalPlannerModuleManager(
   // occupancy grid map
   {
     std::string ns = "goal_planner.occupancy_grid.";
-    p.use_occupancy_grid = node->declare_parameter<bool>(ns + "use_occupancy_grid");
-    p.use_occupancy_grid_for_longitudinal_margin =
-      node->declare_parameter<bool>(ns + "use_occupancy_grid_for_longitudinal_margin");
+    p.use_occupancy_grid_for_goal_search =
+      node->declare_parameter<bool>(ns + "use_occupancy_grid_for_goal_search");
+    p.use_occupancy_grid_for_path_collision_check =
+      node->declare_parameter<bool>(ns + "use_occupancy_grid_for_path_collision_check");
+    p.use_occupancy_grid_for_goal_longitudinal_margin =
+      node->declare_parameter<bool>(ns + "use_occupancy_grid_for_goal_longitudinal_margin");
     p.occupancy_grid_collision_check_margin =
       node->declare_parameter<double>(ns + "occupancy_grid_collision_check_margin");
     p.theta_size = node->declare_parameter<int>(ns + "theta_size");
@@ -91,11 +93,14 @@ GoalPlannerModuleManager::GoalPlannerModuleManager(
     p.object_recognition_collision_check_max_extra_stopping_margin =
       node->declare_parameter<double>(
         ns + "object_recognition_collision_check_max_extra_stopping_margin");
+    p.th_moving_object_velocity = node->declare_parameter<double>(ns + "th_moving_object_velocity");
   }
 
   // pull over general params
   {
-    std::string ns = "goal_planner.pull_over.";
+    const std::string ns = "goal_planner.pull_over.";
+    p.pull_over_minimum_request_length =
+      node->declare_parameter<double>(ns + "minimum_request_length");
     p.pull_over_velocity = node->declare_parameter<double>(ns + "pull_over_velocity");
     p.pull_over_minimum_velocity =
       node->declare_parameter<double>(ns + "pull_over_minimum_velocity");
@@ -241,8 +246,6 @@ GoalPlannerModuleManager::GoalPlannerModuleManager(
   }
 
   parameters_ = std::make_shared<GoalPlannerParameters>(p);
-
-  left_side_parking_ = parameters_->parking_policy == ParkingPolicy::LEFT_SIDE;
 }
 
 void GoalPlannerModuleManager::updateModuleParams(
@@ -263,8 +266,7 @@ bool GoalPlannerModuleManager::isSimultaneousExecutableAsApprovedModule() const
 {
   // enable SimultaneousExecutable whenever goal modification is not allowed
   // because only minor path refinements are made for fixed goals
-  if (!goal_planner_utils::isAllowedGoalModification(
-        planner_data_->route_handler, left_side_parking_)) {
+  if (!goal_planner_utils::isAllowedGoalModification(planner_data_->route_handler)) {
     return true;
   }
 
@@ -275,8 +277,7 @@ bool GoalPlannerModuleManager::isSimultaneousExecutableAsCandidateModule() const
 {
   // enable SimultaneousExecutable whenever goal modification is not allowed
   // because only minor path refinements are made for fixed goals
-  if (!goal_planner_utils::isAllowedGoalModification(
-        planner_data_->route_handler, left_side_parking_)) {
+  if (!goal_planner_utils::isAllowedGoalModification(planner_data_->route_handler)) {
     return true;
   }
 
