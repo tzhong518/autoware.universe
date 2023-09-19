@@ -17,7 +17,9 @@
 #include "behavior_path_planner/utils/create_vehicle_footprint.hpp"
 #include "behavior_path_planner/utils/path_safety_checker/objects_filtering.hpp"
 #include "behavior_path_planner/utils/path_utils.hpp"
+#include "behavior_path_planner/utils/start_goal_planner_common/utils.hpp"
 #include "behavior_path_planner/utils/start_planner/util.hpp"
+#include "motion_utils/trajectory/trajectory.hpp"
 
 #include <lanelet2_extension/utility/utilities.hpp>
 #include <magic_enum.hpp>
@@ -97,6 +99,14 @@ BehaviorModuleOutput StartPlannerModule::run()
   return plan();
 }
 
+void StartPlannerModule::processOnEntry()
+{
+  // Initialize safety checker
+  if (parameters_->safety_check_params.enable_safety_check) {
+    initializeSafetyCheckParameters();
+  }
+}
+
 void StartPlannerModule::processOnExit()
 {
   resetPathCandidate();
@@ -106,6 +116,7 @@ void StartPlannerModule::processOnExit()
 
 bool StartPlannerModule::isExecutionRequested() const
 {
+  // TODO(Sugahara): if required lateral shift distance is small, don't engage this module.
   // Execute when current pose is near route start pose
   const Pose start_pose = planner_data_->route_handler->getOriginalStartPose();
   const Pose & current_pose = planner_data_->self_odometry->pose.pose;
@@ -138,10 +149,16 @@ bool StartPlannerModule::isExecutionRequested() const
 
 bool StartPlannerModule::isExecutionReady() const
 {
-  if (!status_.is_safe) {
-    return false;
+  if (status_.pull_out_path.partial_paths.empty()) {
+    return true;
   }
 
+  if (status_.is_safe_static_objects && parameters_->safety_check_params.enable_safety_check) {
+    if (!isSafePath()) {
+      RCLCPP_ERROR_THROTTLE(getLogger(), *clock_, 5000, "Path is not safe against dynamic objects");
+      return false;
+    }
+  }
   return true;
 }
 
@@ -184,7 +201,7 @@ BehaviorModuleOutput StartPlannerModule::plan()
   }
 
   BehaviorModuleOutput output;
-  if (!status_.is_safe) {
+  if (!status_.is_safe_static_objects) {
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "Not found safe pull out path, publish stop path");
     const auto output = generateStopOutput();
@@ -255,6 +272,15 @@ CandidateOutput StartPlannerModule::planCandidate() const
   return CandidateOutput{};
 }
 
+void StartPlannerModule::initializeSafetyCheckParameters()
+{
+  utils::start_goal_planner_common::updateEgoPredictedPathParams(
+    ego_predicted_path_params_, parameters_);
+  utils::start_goal_planner_common::updateSafetyCheckParams(safety_check_params_, parameters_);
+  utils::start_goal_planner_common::updateObjectsFilteringParams(
+    objects_filtering_params_, parameters_);
+}
+
 PathWithLaneId StartPlannerModule::getFullPath() const
 {
   // combine partial pull out path
@@ -291,7 +317,7 @@ BehaviorModuleOutput StartPlannerModule::planWaitingApproval()
   }
 
   BehaviorModuleOutput output;
-  if (!status_.is_safe) {
+  if (!status_.is_safe_static_objects) {
     RCLCPP_WARN_THROTTLE(
       getLogger(), *clock_, 5000, "Not found safe pull out path, publish stop path");
     clearWaitingApproval();
@@ -409,7 +435,7 @@ void StartPlannerModule::planWithPriority(
     // use current path if back is not needed
     if (status_.back_finished) {
       const std::lock_guard<std::mutex> lock(mutex_);
-      status_.is_safe = true;
+      status_.is_safe_static_objects = true;
       status_.pull_out_path = *pull_out_path;
       status_.pull_out_start_pose = pull_out_start_pose;
       status_.planner_type = planner->getPlannerType();
@@ -430,7 +456,7 @@ void StartPlannerModule::planWithPriority(
     // Update status variables with the next path information
     {
       const std::lock_guard<std::mutex> lock(mutex_);
-      status_.is_safe = true;
+      status_.is_safe_static_objects = true;
       status_.pull_out_path = *pull_out_path_next;
       status_.pull_out_start_pose = pull_out_start_pose_next;
       status_.planner_type = planner->getPlannerType();
@@ -482,7 +508,7 @@ void StartPlannerModule::planWithPriority(
   // not found safe path
   if (status_.planner_type != PlannerType::FREESPACE) {
     const std::lock_guard<std::mutex> lock(mutex_);
-    status_.is_safe = false;
+    status_.is_safe_static_objects = false;
     status_.planner_type = PlannerType::NONE;
   }
 }
@@ -717,7 +743,7 @@ bool StartPlannerModule::isOverlappedWithLane(
 
 bool StartPlannerModule::hasFinishedPullOut() const
 {
-  if (!status_.back_finished || !status_.is_safe) {
+  if (!status_.back_finished || !status_.is_safe_static_objects) {
     return false;
   }
 
@@ -804,7 +830,7 @@ bool StartPlannerModule::isStuck()
   }
 
   // not found safe path
-  if (!status_.is_safe) {
+  if (!status_.is_safe_static_objects) {
     return true;
   }
 
@@ -925,6 +951,70 @@ TurnSignalInfo StartPlannerModule::calcTurnSignalInfo() const
   return turn_signal;
 }
 
+void StartPlannerModule::updateSafetyCheckTargetObjectsData(
+  const PredictedObjects & filtered_objects, const TargetObjectsOnLane & target_objects_on_lane,
+  const std::vector<PoseWithVelocityStamped> & ego_predicted_path) const
+{
+  start_planner_data_.filtered_objects = filtered_objects;
+  start_planner_data_.target_objects_on_lane = target_objects_on_lane;
+  start_planner_data_.ego_predicted_path = ego_predicted_path;
+}
+
+bool StartPlannerModule::isSafePath() const
+{
+  // TODO(Sugahara): should safety check for backward path
+
+  const auto & pull_out_path = getCurrentPath();
+  const auto & current_pose = planner_data_->self_odometry->pose.pose;
+  const auto & current_velocity = std::hypot(
+    planner_data_->self_odometry->twist.twist.linear.x,
+    planner_data_->self_odometry->twist.twist.linear.y);
+  const auto & dynamic_object = planner_data_->dynamic_object;
+  const auto & route_handler = planner_data_->route_handler;
+  const double backward_path_length =
+    planner_data_->parameters.backward_path_length + parameters_->max_back_distance;
+  const auto current_lanes = utils::getExtendedCurrentLanes(
+    planner_data_, backward_path_length, std::numeric_limits<double>::max(),
+    /*forward_only_in_route*/ true);
+  const size_t ego_seg_idx = planner_data_->findEgoSegmentIndex(pull_out_path.points);
+  const auto & common_param = planner_data_->parameters;
+  const std::pair<double, double> terminal_velocity_and_accel =
+    utils::start_goal_planner_common::getPairsTerminalVelocityAndAccel(
+      status_.pull_out_path.pairs_terminal_velocity_and_accel, status_.current_path_idx);
+  utils::start_goal_planner_common::updatePathProperty(
+    ego_predicted_path_params_, terminal_velocity_and_accel);
+  const auto & ego_predicted_path =
+    behavior_path_planner::utils::path_safety_checker::createPredictedPath(
+      ego_predicted_path_params_, pull_out_path.points, current_pose, current_velocity,
+      ego_seg_idx);
+
+  const auto & filtered_objects = utils::path_safety_checker::filterObjects(
+    dynamic_object, route_handler, current_lanes, current_pose.position, objects_filtering_params_);
+
+  const auto & target_objects_on_lane = utils::path_safety_checker::createTargetObjectsOnLane(
+    current_lanes, route_handler, filtered_objects, objects_filtering_params_);
+
+  const double hysteresis_factor =
+    status_.is_safe_dynamic_objects ? 1.0 : safety_check_params_->hysteresis_factor_expand_rate;
+
+  updateSafetyCheckTargetObjectsData(filtered_objects, target_objects_on_lane, ego_predicted_path);
+
+  for (const auto & object : target_objects_on_lane.on_current_lane) {
+    const auto obj_predicted_paths = utils::path_safety_checker::getPredictedPathFromObj(
+      object, objects_filtering_params_->check_all_predicted_path);
+    for (const auto & obj_path : obj_predicted_paths) {
+      CollisionCheckDebug collision{};
+      if (!utils::path_safety_checker::checkCollision(
+            pull_out_path, ego_predicted_path, object, obj_path, common_param,
+            safety_check_params_->rss_params, hysteresis_factor, collision)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 bool StartPlannerModule::IsGoalBehindOfEgoInSameRouteSegment() const
 {
   const auto & rh = planner_data_->route_handler;
@@ -1015,7 +1105,7 @@ bool StartPlannerModule::planFreespacePath()
     status_.pull_out_path = *freespace_path;
     status_.pull_out_start_pose = current_pose;
     status_.planner_type = freespace_planner_->getPlannerType();
-    status_.is_safe = true;
+    status_.is_safe_static_objects = true;
     status_.back_finished = true;
     return true;
   }
@@ -1042,8 +1132,10 @@ void StartPlannerModule::setDrivableAreaInfo(BehaviorModuleOutput & output) cons
 
 void StartPlannerModule::setDebugData() const
 {
+  using marker_utils::createObjectsMarkerArray;
   using marker_utils::createPathMarkerArray;
   using marker_utils::createPoseMarkerArray;
+  using marker_utils::createPredictedPathMarkerArray;
   using tier4_autoware_utils::createDefaultMarker;
   using tier4_autoware_utils::createMarkerColor;
   using tier4_autoware_utils::createMarkerScale;
@@ -1061,13 +1153,24 @@ void StartPlannerModule::setDebugData() const
   add(createPoseMarkerArray(status_.pull_out_path.start_pose, "start_pose", 0, 0.3, 0.9, 0.3));
   add(createPoseMarkerArray(status_.pull_out_path.end_pose, "end_pose", 0, 0.9, 0.9, 0.3));
   add(createPathMarkerArray(getFullPath(), "full_path", 0, 0.0, 0.5, 0.9));
+  if (start_planner_data_.ego_predicted_path.size() > 0) {
+    const auto & ego_predicted_path = utils::path_safety_checker::convertToPredictedPath(
+      start_planner_data_.ego_predicted_path, ego_predicted_path_params_->time_resolution);
+    add(createPredictedPathMarkerArray(
+      ego_predicted_path, vehicle_info_, "ego_predicted_path", 0, 0.0, 0.5, 0.9));
+  }
+
+  if (start_planner_data_.filtered_objects.objects.size() > 0) {
+    add(createObjectsMarkerArray(
+      start_planner_data_.filtered_objects, "filtered_objects", 0, 0.0, 0.5, 0.9));
+  }
 
   // Visualize planner type text
   const auto header = planner_data_->route_handler->getRouteHeader();
   {
     visualization_msgs::msg::MarkerArray planner_type_marker_array{};
-    const auto color = status_.is_safe ? createMarkerColor(1.0, 1.0, 1.0, 0.99)
-                                       : createMarkerColor(1.0, 0.0, 0.0, 0.99);
+    const auto color = status_.is_safe_static_objects ? createMarkerColor(1.0, 1.0, 1.0, 0.99)
+                                                      : createMarkerColor(1.0, 0.0, 0.0, 0.99);
     auto marker = createDefaultMarker(
       header.frame_id, header.stamp, "planner_type", 0,
       visualization_msgs::msg::Marker::TEXT_VIEW_FACING, createMarkerScale(0.0, 0.0, 1.0), color);

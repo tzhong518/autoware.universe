@@ -169,8 +169,10 @@ struct ObjectsFilteringParams
  */
 struct SafetyCheckParams
 {
-  bool enable_safety_check;          ///< Enable safety checks.
-  double backward_lane_length;       ///< Length of the backward lane for path generation.
+  bool enable_safety_check;  ///< Enable safety checks.
+  double
+    hysteresis_factor_expand_rate;   ///< Hysteresis factor to expand/shrink polygon with the value.
+  double backward_path_length;       ///< Length of the backward lane for path generation.
   double forward_path_length;        ///< Length of the forward path lane for path generation.
   RSSparams rss_params;              ///< Parameters related to the RSS model.
   bool publish_debug_marker{false};  ///< Option to publish debug markers.
