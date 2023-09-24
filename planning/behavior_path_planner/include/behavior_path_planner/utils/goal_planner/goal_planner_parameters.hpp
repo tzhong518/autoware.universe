@@ -41,10 +41,11 @@ enum class ParkingPolicy {
 struct GoalPlannerParameters
 {
   // general  params
-  double th_arrived_distance;
-  double th_stopped_velocity;
-  double th_stopped_time;
-  double th_blinker_on_lateral_offset;
+  double th_arrived_distance{0.0};
+  double th_stopped_velocity{0.0};
+  double th_stopped_time{0.0};
+  double th_blinker_on_lateral_offset{0.0};
+  double center_line_path_interval{0.0};
 
   // goal search
   std::string search_priority;   // "efficient_path" or "close_goal"
