@@ -1435,7 +1435,9 @@ void generateDrivableArea(
 
   // make bound longitudinally monotonic
   // TODO(Murooka) Fix makeBoundLongitudinallyMonotonic
-  if (enable_expanding_hatched_road_markings || enable_expanding_intersection_areas) {
+  if (
+    is_driving_forward &&
+    (enable_expanding_hatched_road_markings || enable_expanding_intersection_areas)) {
     makeBoundLongitudinallyMonotonic(path, planner_data, true);   // for left bound
     makeBoundLongitudinallyMonotonic(path, planner_data, false);  // for right bound
   }
