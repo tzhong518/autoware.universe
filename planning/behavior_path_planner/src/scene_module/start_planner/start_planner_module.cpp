@@ -1165,6 +1165,7 @@ void StartPlannerModule::setDebugData() const
     add(createPredictedPathMarkerArray(
       ego_predicted_path, vehicle_info_, "ego_predicted_path", 0, 0.0, 0.5, 0.9));
   }
+  add(createPathMarkerArray(status_.backward_path, "backward_driving_path", 0, 0.0, 0.9, 0.0));
 
   if (start_planner_data_.filtered_objects.objects.size() > 0) {
     add(createObjectsMarkerArray(
