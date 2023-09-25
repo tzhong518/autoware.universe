@@ -108,6 +108,7 @@ public:
       std::vector<double> possible_object_bbox;
       double ignore_parked_vehicle_speed_threshold;
       double stop_release_margin_time;
+      bool temporal_stop_before_attention_area;
     } occlusion;
   };
 
@@ -136,15 +137,19 @@ public:
     // NOTE: if intersection_occlusion is disapproved externally through RTC,
     // it indicates "is_forcefully_occluded"
     bool is_actually_occlusion_cleared{false};
+    bool temporal_stop_before_attention_required{false};
     size_t closest_idx{0};
     size_t collision_stop_line_idx{0};
+    size_t first_attention_stop_line_idx{0};
     size_t occlusion_stop_line_idx{0};
   };
   struct OccludedCollisionStop
   {
     bool is_actually_occlusion_cleared{false};
+    bool temporal_stop_before_attention_required{false};
     size_t closest_idx{0};
     size_t collision_stop_line_idx{0};
+    size_t first_attention_stop_line_idx{0};
     size_t occlusion_stop_line_idx{0};
   };
   struct Safe
@@ -217,6 +222,7 @@ private:
   StateMachine collision_state_machine_;     //! for stable collision checking
   StateMachine before_creep_state_machine_;  //! for two phase stop
   StateMachine occlusion_stop_state_machine_;
+  StateMachine temporal_stop_before_attention_state_machine_;
   // NOTE: uuid_ is base member
 
   // for stuck vehicle detection
