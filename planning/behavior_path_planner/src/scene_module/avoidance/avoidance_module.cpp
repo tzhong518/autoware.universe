@@ -146,7 +146,10 @@ ModuleStatus AvoidanceModule::updateState()
 {
   const auto & data = avoidance_data_;
   const auto is_plan_running = isAvoidancePlanRunning();
-  const bool has_avoidance_target = !data.target_objects.empty();
+  const bool has_avoidance_target =
+    std::any_of(data.target_objects.begin(), data.target_objects.end(), [](const auto & o) {
+      return o.is_avoidable || o.reason == AvoidanceDebugFactor::TOO_LARGE_JERK;
+    });
 
   if (!isDrivingSameLane(helper_.getPreviousDrivingLanes(), data.current_lanelets)) {
     RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 500, "previous module lane is updated.");
@@ -670,6 +673,8 @@ void AvoidanceModule::updateEgoBehavior(const AvoidancePlanningData & data, Shif
       throw std::domain_error("invalid behavior");
   }
 
+  insertReturnDeadLine(isBestEffort(parameters_->policy_deceleration), path);
+
   setStopReason(StopReason::AVOIDANCE, path.path);
 }
 
@@ -1013,9 +1018,10 @@ AvoidLineArray AvoidanceModule::calcRawShiftLinesFromObjects(
       const auto offset = object_parameter.safety_buffer_longitudinal + base_link2rear + o.length;
       // The end_margin also has the purpose of preventing the return path from NOT being
       // triggered at the end point.
-      const auto end_margin = 1.0;
-      const auto return_remaining_distance =
-        std::max(data.arclength_from_ego.back() - o.longitudinal - offset - end_margin, 0.0);
+      const auto return_remaining_distance = std::max(
+        data.arclength_from_ego.back() - o.longitudinal - offset -
+          parameters_->remain_buffer_distance,
+        0.0);
 
       al_return.start_shift_length = feasible_shift_length.get();
       al_return.end_shift_length = 0.0;
@@ -1795,14 +1801,14 @@ void AvoidanceModule::addReturnShiftLineFromEgo(AvoidLineArray & sl_candidates) 
     return;
   }
 
-  const auto remaining_distance = arclength_from_ego.back();
+  const auto remaining_distance = arclength_from_ego.back() - parameters_->remain_buffer_distance;
 
   // If the avoidance point has already been set, the return shift must be set after the point.
   const auto last_sl_distance = avoidance_data_.arclength_from_ego.at(last_sl.end_idx);
 
   // check if there is enough distance for return.
-  if (last_sl_distance + 1.0 > remaining_distance) {  // tmp: add some small number (+1.0)
-    DEBUG_PRINT("No enough distance for return.");
+  if (last_sl_distance > remaining_distance) {  // tmp: add some small number (+1.0)
+    RCLCPP_WARN_THROTTLE(getLogger(), *clock_, 1000, "No enough distance for return.");
     return;
   }
 
@@ -2929,6 +2935,77 @@ double AvoidanceModule::calcDistanceToStopLine(const ObjectData & object) const
   return object.longitudinal - std::min(variable + constant, p->stop_max_distance);
 }
 
+void AvoidanceModule::insertReturnDeadLine(
+  const bool use_constraints_for_decel, ShiftedPath & shifted_path) const
+{
+  const auto & data = avoidance_data_;
+
+  if (!planner_data_->route_handler->isInGoalRouteSection(data.current_lanelets.back())) {
+    RCLCPP_DEBUG(getLogger(), "goal is far enough.");
+    return;
+  }
+
+  const auto shift_length = path_shifter_.getLastShiftLength();
+
+  if (std::abs(shift_length) < 1e-3) {
+    RCLCPP_DEBUG(getLogger(), "don't have to consider return shift.");
+    return;
+  }
+
+  const auto min_return_distance = helper_.getMinAvoidanceDistance(shift_length);
+
+  const auto to_goal = calcSignedArcLength(
+    shifted_path.path.points, getEgoPosition(), shifted_path.path.points.size() - 1);
+  const auto to_stop_line = to_goal - min_return_distance - parameters_->remain_buffer_distance;
+
+  // If we don't need to consider deceleration constraints, insert a deceleration point
+  // and return immediately
+  if (!use_constraints_for_decel) {
+    utils::avoidance::insertDecelPoint(
+      getEgoPosition(), to_stop_line - parameters_->stop_buffer, 0.0, shifted_path.path,
+      stop_pose_);
+    return;
+  }
+
+  // If the stop distance is not enough for comfortable stop, don't insert wait point.
+  const auto is_comfortable_stop = helper_.getFeasibleDecelDistance(0.0) < to_stop_line;
+  if (!is_comfortable_stop) {
+    RCLCPP_DEBUG(getLogger(), "stop distance is not enough.");
+    return;
+  }
+
+  utils::avoidance::insertDecelPoint(
+    getEgoPosition(), to_stop_line - parameters_->stop_buffer, 0.0, shifted_path.path, stop_pose_);
+
+  // insert slow down speed.
+  const double current_target_velocity = PathShifter::calcFeasibleVelocityFromJerk(
+    shift_length, helper_.getLateralMinJerkLimit(), to_stop_line);
+  if (current_target_velocity < getEgoSpeed()) {
+    RCLCPP_DEBUG(getLogger(), "current velocity exceeds target slow down speed.");
+    return;
+  }
+
+  const auto start_idx = planner_data_->findEgoIndex(shifted_path.path.points);
+  for (size_t i = start_idx; i < shifted_path.path.points.size(); ++i) {
+    const auto distance_from_ego = calcSignedArcLength(shifted_path.path.points, start_idx, i);
+
+    // slow down speed is inserted only in front of the object.
+    const auto shift_longitudinal_distance = to_stop_line - distance_from_ego;
+    if (shift_longitudinal_distance < 0.0) {
+      break;
+    }
+
+    // target speed with nominal jerk limits.
+    const double v_target = PathShifter::calcFeasibleVelocityFromJerk(
+      shift_length, helper_.getLateralMinJerkLimit(), shift_longitudinal_distance);
+    const double v_original = shifted_path.path.points.at(i).point.longitudinal_velocity_mps;
+    const double v_insert =
+      std::max(v_target - parameters_->buf_slow_down_speed, parameters_->min_slow_down_speed);
+
+    shifted_path.path.points.at(i).point.longitudinal_velocity_mps = std::min(v_original, v_insert);
+  }
+}
+
 void AvoidanceModule::insertWaitPoint(
   const bool use_constraints_for_decel, ShiftedPath & shifted_path) const
 {
@@ -3058,6 +3135,12 @@ void AvoidanceModule::insertPrepareVelocity(ShiftedPath & shifted_path) const
   }
 
   const auto object = data.target_objects.front();
+
+  const auto enough_space =
+    object.is_avoidable || object.reason == AvoidanceDebugFactor::TOO_LARGE_JERK;
+  if (!enough_space) {
+    return;
+  }
 
   // calculate shift length for front object.
   const auto & vehicle_width = planner_data_->parameters.vehicle_width;
