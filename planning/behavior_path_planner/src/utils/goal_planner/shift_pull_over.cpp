@@ -171,8 +171,6 @@ boost::optional<PullOverPath> ShiftPullOver::generatePullOverPath(
     shifted_path.path.points.push_back(p);
   }
 
-  shifted_path.path = utils::removeInverseOrderPathPoints(shifted_path.path);
-
   // set the same z as the goal
   for (auto & p : shifted_path.path.points) {
     p.point.pose.position.z = goal_pose.position.z;
