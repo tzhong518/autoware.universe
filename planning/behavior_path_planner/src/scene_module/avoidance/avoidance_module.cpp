@@ -2127,14 +2127,17 @@ void AvoidanceModule::generateExtendedDrivableArea(BehaviorModuleOutput & output
 
 PathWithLaneId AvoidanceModule::extendBackwardLength(const PathWithLaneId & original_path) const
 {
-  // special for avoidance: take behind distance upt ot shift-start-point if it exist.
+  const auto previous_path = helper_.getPreviousReferencePath();
+
   const auto longest_dist_to_shift_point = [&]() {
     double max_dist = 0.0;
     for (const auto & pnt : path_shifter_.getShiftLines()) {
-      max_dist = std::max(max_dist, calcDistance2d(getEgoPose(), pnt.start));
+      max_dist = std::max(
+        max_dist, calcSignedArcLength(previous_path.points, pnt.start.position, getEgoPosition()));
     }
     for (const auto & sp : registered_raw_shift_lines_) {
-      max_dist = std::max(max_dist, calcDistance2d(getEgoPose(), sp.start));
+      max_dist = std::max(
+        max_dist, calcSignedArcLength(previous_path.points, sp.start.position, getEgoPosition()));
     }
     return max_dist;
   }();
@@ -2142,11 +2145,11 @@ PathWithLaneId AvoidanceModule::extendBackwardLength(const PathWithLaneId & orig
   const auto extra_margin = 10.0;  // Since distance does not consider arclength, but just line.
   const auto backward_length = std::max(
     planner_data_->parameters.backward_path_length, longest_dist_to_shift_point + extra_margin);
-  const auto previous_path = helper_.getPreviousReferencePath();
 
   const size_t orig_ego_idx = planner_data_->findEgoIndex(original_path.points);
-  const size_t prev_ego_idx =
-    findNearestSegmentIndex(previous_path.points, getPoint(original_path.points.at(orig_ego_idx)));
+  const size_t prev_ego_idx = motion_utils::findFirstNearestSegmentIndexWithSoftConstraints(
+    previous_path.points, getPose(original_path.points.at(orig_ego_idx)),
+    std::numeric_limits<double>::max(), planner_data_->parameters.ego_nearest_yaw_threshold);
 
   size_t clip_idx = 0;
   for (size_t i = 0; i < prev_ego_idx; ++i) {
@@ -2289,37 +2292,35 @@ CandidateOutput AvoidanceModule::planCandidate() const
 
   auto shifted_path = data.candidate_path;
 
-  if (!data.safe_new_sl.empty()) {  // clip from shift start index for visualize
-    utils::clipPathLength(
-      shifted_path.path, data.safe_new_sl.front().start_idx, std::numeric_limits<double>::max(),
-      0.0);
+  if (data.safe_new_sl.empty()) {
+    const size_t ego_idx = planner_data_->findEgoIndex(shifted_path.path.points);
+    utils::clipPathLength(shifted_path.path, ego_idx, planner_data_->parameters);
 
-    const auto sl = helper_.getMainShiftLine(data.safe_new_sl);
-    const auto sl_front = data.safe_new_sl.front();
-    const auto sl_back = data.safe_new_sl.back();
-
-    output.lateral_shift = helper_.getRelativeShiftToPath(sl);
-    output.start_distance_to_path_change = sl_front.start_longitudinal;
-    output.finish_distance_to_path_change = sl_back.end_longitudinal;
-
-    const uint16_t steering_factor_direction = std::invoke([&output]() {
-      if (output.lateral_shift > 0.0) {
-        return SteeringFactor::LEFT;
-      }
-      return SteeringFactor::RIGHT;
-    });
-    steering_factor_interface_ptr_->updateSteeringFactor(
-      {sl_front.start, sl_back.end},
-      {output.start_distance_to_path_change, output.finish_distance_to_path_change},
-      SteeringFactor::AVOIDANCE_PATH_CHANGE, steering_factor_direction, SteeringFactor::APPROACHING,
-      "");
+    output.path_candidate = shifted_path.path;
+    return output;
   }
 
-  const size_t ego_idx = planner_data_->findEgoIndex(shifted_path.path.points);
-  utils::clipPathLength(shifted_path.path, ego_idx, planner_data_->parameters);
+  const auto sl = helper_.getMainShiftLine(data.safe_new_sl);
+  const auto sl_front = data.safe_new_sl.front();
+  const auto sl_back = data.safe_new_sl.back();
+
+  utils::clipPathLength(
+    shifted_path.path, sl_front.start_idx, std::numeric_limits<double>::max(), 0.0);
+
+  output.lateral_shift = helper_.getRelativeShiftToPath(sl);
+  output.start_distance_to_path_change = sl_front.start_longitudinal;
+  output.finish_distance_to_path_change = sl_back.end_longitudinal;
+
+  const uint16_t steering_factor_direction = std::invoke([&output]() {
+    return output.lateral_shift > 0.0 ? SteeringFactor::LEFT : SteeringFactor::RIGHT;
+  });
+  steering_factor_interface_ptr_->updateSteeringFactor(
+    {sl_front.start, sl_back.end},
+    {output.start_distance_to_path_change, output.finish_distance_to_path_change},
+    SteeringFactor::AVOIDANCE_PATH_CHANGE, steering_factor_direction, SteeringFactor::APPROACHING,
+    "");
 
   output.path_candidate = shifted_path.path;
-
   return output;
 }
 
