@@ -115,6 +115,8 @@ IntersectionModuleManager::IntersectionModuleManager(rclcpp::Node & node)
     node.declare_parameter<double>(ns + ".occlusion.ignore_parked_vehicle_speed_threshold");
   ip.occlusion.stop_release_margin_time =
     node.declare_parameter<double>(ns + ".occlusion.stop_release_margin_time");
+  ip.occlusion.temporal_stop_before_attention_area =
+    node.declare_parameter<bool>(ns + ".occlusion.temporal_stop_before_attention_area");
 }
 
 void IntersectionModuleManager::launchNewModules(
