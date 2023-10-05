@@ -18,6 +18,8 @@
 #include <behavior_velocity_planner_common/utilization/util.hpp>
 #include <motion_utils/motion_utils.hpp>
 
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+
 #include <string>
 
 namespace behavior_velocity_planner
