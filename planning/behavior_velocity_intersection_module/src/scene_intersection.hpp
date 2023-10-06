@@ -227,19 +227,18 @@ private:
   const std::string turn_direction_;
   const bool has_traffic_light_;
 
-  bool is_go_out_ = false;
-  bool is_permanent_go_ = false;
-  DecisionResult prev_decision_result_;
+  bool is_go_out_{false};
+  bool is_permanent_go_{false};
+  DecisionResult prev_decision_result_{Indecisive{""}};
 
   // Parameter
   PlannerParam planner_param_;
 
-  std::optional<util::IntersectionLanelets> intersection_lanelets_;
+  std::optional<util::IntersectionLanelets> intersection_lanelets_{std::nullopt};
 
   // for occlusion detection
   const bool enable_occlusion_detection_;
-  std::optional<std::vector<util::DescritizedLane>> occlusion_attention_divisions_;
-  // OcclusionState prev_occlusion_state_ = OcclusionState::NONE;
+  std::optional<std::vector<util::DescritizedLane>> occlusion_attention_divisions_{std::nullopt};
   StateMachine collision_state_machine_;     //! for stable collision checking
   StateMachine before_creep_state_machine_;  //! for two phase stop
   StateMachine occlusion_stop_state_machine_;
@@ -253,11 +252,11 @@ private:
 
   // for RTC
   const UUID occlusion_uuid_;
-  bool occlusion_safety_ = true;
-  double occlusion_stop_distance_;
-  bool occlusion_activated_ = true;
+  bool occlusion_safety_{true};
+  double occlusion_stop_distance_{0.0};
+  bool occlusion_activated_{true};
   // for first stop in two-phase stop
-  bool occlusion_first_stop_required_ = false;
+  bool occlusion_first_stop_required_{false};
 
   void initializeRTCStatus();
   void prepareRTCStatus(

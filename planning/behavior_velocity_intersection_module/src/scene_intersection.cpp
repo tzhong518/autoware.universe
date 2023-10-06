@@ -30,10 +30,12 @@
 
 #include <lanelet2_core/geometry/LineString.h>
 #include <lanelet2_core/geometry/Polygon.h>
+#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 #include <lanelet2_core/primitives/LineString.h>
 
 #include <algorithm>
 #include <limits>
+#include <map>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -989,13 +991,14 @@ IntersectionModule::DecisionResult IntersectionModule::modifyPathVelocityDetail(
     debug_data_.intersection_area = toGeomPoly(intersection_area_2d);
   }
 
+  const auto target_objects =
+    filterTargetObjects(attention_lanelets, adjacent_lanelets, intersection_area);
+
   // calculate dynamic collision around attention area
   const double time_to_restart = (is_go_out_ || tl_arrow_solid_on)
                                    ? 0.0
                                    : (planner_param_.collision_detection.state_transit_margin_time -
                                       collision_state_machine_.getDuration());
-  const auto target_objects =
-    filterTargetObjects(attention_lanelets, adjacent_lanelets, intersection_area);
 
   const bool has_collision = checkCollision(
     *path, target_objects, path_lanelets, closest_idx, time_to_restart, tl_arrow_solid_on);
