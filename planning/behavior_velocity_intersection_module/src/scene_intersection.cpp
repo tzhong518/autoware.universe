@@ -840,10 +840,14 @@ IntersectionModule::DecisionResult IntersectionModule::modifyPathVelocityDetail(
       planner_param_.occlusion.occlusion_attention_area_length,
       planner_param_.common.consider_wrong_direction_vehicle);
   }
-  const auto & intersection_lanelets = intersection_lanelets_.value();
+  auto & intersection_lanelets = intersection_lanelets_.value();
+
+  // at the very first time of registration of this module, the path may not be conflicting with the
+  // attention area, so update() is called to update the internal data as well as traffic light info
   const bool tl_arrow_solid_on =
     util::isTrafficLightArrowActivated(assigned_lanelet, planner_data_->traffic_light_id_map);
-  intersection_lanelets_.value().update(tl_arrow_solid_on, interpolated_path_info);
+  const auto footprint = planner_data_->vehicle_info_.createFootprint(0.0, 0.0);
+  intersection_lanelets.update(tl_arrow_solid_on, interpolated_path_info, footprint);
 
   // this is abnormal
   const auto & conflicting_lanelets = intersection_lanelets.conflicting();

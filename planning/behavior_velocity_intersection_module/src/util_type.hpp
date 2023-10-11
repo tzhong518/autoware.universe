@@ -15,6 +15,8 @@
 #ifndef UTIL_TYPE_HPP_
 #define UTIL_TYPE_HPP_
 
+#include <tier4_autoware_utils/geometry/geometry.hpp>
+
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <geometry_msgs/msg/point.hpp>
@@ -67,7 +69,9 @@ struct InterpolatedPathInfo
 struct IntersectionLanelets
 {
 public:
-  void update(const bool tl_arrow_solid_on, const InterpolatedPathInfo & interpolated_path_info);
+  void update(
+    const bool tl_arrow_solid_on, const InterpolatedPathInfo & interpolated_path_info,
+    const tier4_autoware_utils::LinearRing2d & footprint);
   const lanelet::ConstLanelets & attention() const
   {
     return tl_arrow_solid_on_ ? attention_non_preceding_ : attention_;
