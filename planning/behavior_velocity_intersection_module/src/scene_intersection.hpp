@@ -238,7 +238,8 @@ private:
 
   // for occlusion detection
   const bool enable_occlusion_detection_;
-  std::optional<std::vector<util::DescritizedLane>> occlusion_attention_divisions_{std::nullopt};
+  std::optional<std::vector<lanelet::ConstLineString3d>> occlusion_attention_divisions_{
+    std::nullopt};
   StateMachine collision_state_machine_;     //! for stable collision checking
   StateMachine before_creep_state_machine_;  //! for two phase stop
   StateMachine occlusion_stop_state_machine_;
@@ -268,16 +269,14 @@ private:
     const std::shared_ptr<const PlannerData> & planner_data,
     const util::PathLanelets & path_lanelets);
 
-  autoware_auto_perception_msgs::msg::PredictedObjects filterTargetObjects(
-    const lanelet::ConstLanelets & attention_area_lanelets,
-    const lanelet::ConstLanelets & adjacent_lanelets,
+  util::TargetObjects generateTargetObjects(
+    const util::IntersectionLanelets & intersection_lanelets,
     const std::optional<Polygon2d> & intersection_area) const;
 
   bool checkCollision(
     const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
-    const autoware_auto_perception_msgs::msg::PredictedObjects & target_objects,
-    const util::PathLanelets & path_lanelets, const int closest_idx, const double time_delay,
-    const bool tl_arrow_solid_on);
+    util::TargetObjects * target_objects, const util::PathLanelets & path_lanelets,
+    const int closest_idx, const double time_delay, const bool tl_arrow_solid_on);
 
   bool isOcclusionCleared(
     const nav_msgs::msg::OccupancyGrid & occ_grid,
@@ -285,9 +284,8 @@ private:
     const lanelet::ConstLanelets & adjacent_lanelets,
     const lanelet::CompoundPolygon3d & first_attention_area,
     const util::InterpolatedPathInfo & interpolated_path_info,
-    const std::vector<util::DescritizedLane> & lane_divisions,
-    const std::vector<autoware_auto_perception_msgs::msg::PredictedObject> &
-      parked_attention_objects,
+    const std::vector<lanelet::ConstLineString3d> & lane_divisions,
+    const std::vector<util::TargetObject> & blocking_attention_objects,
     const double occlusion_dist_thr);
 
   /*
