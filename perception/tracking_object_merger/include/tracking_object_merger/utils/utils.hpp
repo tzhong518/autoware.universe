@@ -17,7 +17,7 @@
 #ifndef TRACKING_OBJECT_MERGER__UTILS__UTILS_HPP_
 #define TRACKING_OBJECT_MERGER__UTILS__UTILS_HPP_
 
-// #include <tier4_autoware_utils/tier4_autoware_utils.hpp>
+#include <tier4_autoware_utils/tier4_autoware_utils.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_perception_msgs/msg/object_classification.hpp>
