@@ -17,7 +17,7 @@
 #ifndef TRACKING_OBJECT_MERGER__UTILS__UTILS_HPP_
 #define TRACKING_OBJECT_MERGER__UTILS__UTILS_HPP_
 
-#include <tier4_autoware_utils/tier4_autoware_utils.hpp>
+// #include <tier4_autoware_utils/tier4_autoware_utils.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_perception_msgs/msg/object_classification.hpp>
@@ -30,6 +30,10 @@
 
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2/LinearMath/Transform.h>
+#include <tf2/convert.h>
+#include <tf2/transform_datatypes.h>
 
 #include <cmath>
 #include <iostream>
