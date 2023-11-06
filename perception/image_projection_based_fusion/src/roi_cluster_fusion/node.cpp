@@ -170,6 +170,7 @@ void RoiClusterFusionNode::fuseOnSingleImage(
 
   for (const auto & feature_obj : input_roi_msg.feature_objects) {
     int index = 0;
+    bool associated = false;
     double max_iou = 0.0;
     bool is_roi_label_known =
       feature_obj.object.classification.front().label != ObjectClassification::UNKNOWN;
@@ -193,6 +194,9 @@ void RoiClusterFusionNode::fuseOnSingleImage(
         max_iou = iou;
         associated = true;
       }
+    }
+    if (!associated) {
+      continue;
     }
     if (!output_cluster_msg.feature_objects.empty()) {
       bool is_roi_existence_prob_higher =
