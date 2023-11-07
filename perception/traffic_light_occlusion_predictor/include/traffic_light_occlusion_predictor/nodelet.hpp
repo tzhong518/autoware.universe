@@ -69,8 +69,8 @@ private:
    */
   void syncCallback(
     const tier4_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr in_signal_msg,
-    const tier4_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr in_signal_msg2,
     const tier4_perception_msgs::msg::TrafficLightRoiArray::ConstSharedPtr in_roi_msg,
+    const tier4_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr in_signal_msg2,
     const tier4_perception_msgs::msg::TrafficLightRoiArray::ConstSharedPtr in_roi_msg2,
     const sensor_msgs::msg::CameraInfo::ConstSharedPtr in_cam_info_msg,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr in_cloud_msg);
@@ -94,8 +94,9 @@ private:
   std::shared_ptr<CloudOcclusionPredictor> cloud_occlusion_predictor_;
 
   typedef perception_utils::PrimeSynchronizer<
-    tier4_perception_msgs::msg::TrafficSignalArray, tier4_perception_msgs::msg::TrafficSignalArray,
+    tier4_perception_msgs::msg::TrafficSignalArray,
     tier4_perception_msgs::msg::TrafficLightRoiArray,
+    tier4_perception_msgs::msg::TrafficSignalArray,
     tier4_perception_msgs::msg::TrafficLightRoiArray, sensor_msgs::msg::CameraInfo,
     sensor_msgs::msg::PointCloud2>
     SynchronizerType;

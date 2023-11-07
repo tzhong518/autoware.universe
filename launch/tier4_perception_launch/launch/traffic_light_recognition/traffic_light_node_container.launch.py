@@ -182,9 +182,10 @@ def generate_launch_description():
                 remappings=[
                     ("~/input/image", LaunchConfiguration("input/image")),
                     ("~/input/rois", LaunchConfiguration("output/rois")),
+                    # ("~/input/rois", LaunchConfiguration("output/rois_car")),
                     ("~/input/rough/rois", "detection/rough/rois"),
-                    # ("~/input/traffic_signals", LaunchConfiguration("output/traffic_signals")),
-                    ("~/input/traffic_signals", "/perception/traffic_light_recognition/camera6/classification/classified/traffic_signals_ped"),
+                    ("~/input/traffic_signals", LaunchConfiguration("output/traffic_signals")),
+                    # ("~/input/traffic_signals", "/perception/traffic_light_recognition/camera6/classification/classified/traffic_signals_car"),
                     # ("~/input/traffic_signals", "/perception/traffic_light_recognition/internal/traffic_signals"),
                     ("~/output/image", "debug/rois"),
                     ("~/output/image/compressed", "debug/rois/compressed"),
