@@ -107,7 +107,7 @@ public:
     const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelets & target_lanes,
     const double threshold) const = 0;
 
-  virtual bool getAbortPath() = 0;
+  virtual bool calcAbortPath() = 0;
 
   virtual bool specialRequiredCheck() const { return false; }
 
@@ -209,6 +209,10 @@ public:
     return direction_;
   }
 
+  boost::optional<Pose> getStopPose() const { return lane_change_stop_pose_; }
+
+  void resetStopPose() { lane_change_stop_pose_ = boost::none; }
+
 protected:
   virtual lanelet::ConstLanelets getCurrentLanes() const = 0;
 
@@ -244,6 +248,7 @@ protected:
   PathWithLaneId prev_module_path_{};
   DrivableAreaInfo prev_drivable_area_info_{};
   TurnSignalInfo prev_turn_signal_info_{};
+  boost::optional<Pose> lane_change_stop_pose_{boost::none};
 
   PathWithLaneId prev_approved_path_{};
 

@@ -111,36 +111,42 @@ bool NormalLaneChange::isLaneChangeRequired() const
 
 LaneChangePath NormalLaneChange::getLaneChangePath() const
 {
-  return isAbortState() ? *abort_path_ : status_.lane_change_path;
+  return status_.lane_change_path;
 }
 
 BehaviorModuleOutput NormalLaneChange::generateOutput()
 {
   BehaviorModuleOutput output;
-  output.path = std::make_shared<PathWithLaneId>(getLaneChangePath().path);
 
-  const auto found_extended_path = extendPath();
-  if (found_extended_path) {
-    *output.path = utils::combinePath(*output.path, *found_extended_path);
-  }
-  extendOutputDrivableArea(output);
-  output.reference_path = std::make_shared<PathWithLaneId>(getReferencePath());
-  output.turn_signal_info = updateOutputTurnSignal();
-
-  if (isAbortState()) {
+  if (isAbortState() && abort_path_) {
+    output.path = std::make_shared<PathWithLaneId>(abort_path_->path);
     output.reference_path = std::make_shared<PathWithLaneId>(prev_module_reference_path_);
     output.turn_signal_info = prev_turn_signal_info_;
-    return output;
+    insertStopPoint(status_.current_lanes, *output.path);
+  } else {
+    output.path = std::make_shared<PathWithLaneId>(getLaneChangePath().path);
+
+    const auto found_extended_path = extendPath();
+    if (found_extended_path) {
+      *output.path = utils::combinePath(*output.path, *found_extended_path);
+    }
+    output.reference_path = std::make_shared<PathWithLaneId>(getReferencePath());
+    output.turn_signal_info = updateOutputTurnSignal();
+
+    if (isStopState()) {
+      const auto current_velocity = getEgoVelocity();
+      const auto current_dist = motion_utils::calcSignedArcLength(
+        output.path->points, output.path->points.front().point.pose.position, getEgoPosition());
+      const auto stop_dist =
+        -(current_velocity * current_velocity / (2.0 * planner_data_->parameters.min_acc));
+      const auto stop_point = utils::insertStopPoint(stop_dist + current_dist, *output.path);
+      setStopPose(stop_point.point.pose);
+    } else {
+      insertStopPoint(status_.target_lanes, *output.path);
+    }
   }
 
-  if (isStopState()) {
-    const auto current_velocity = getEgoVelocity();
-    const auto current_dist = motion_utils::calcSignedArcLength(
-      output.path->points, output.path->points.front().point.pose.position, getEgoPosition());
-    const auto stop_dist =
-      -(current_velocity * current_velocity / (2.0 * planner_data_->parameters.min_acc));
-    const auto stop_point = utils::insertStopPoint(stop_dist + current_dist, *output.path);
-  }
+  extendOutputDrivableArea(output);
 
   const auto current_seg_idx = planner_data_->findEgoSegmentIndex(output.path->points);
   output.turn_signal_info = planner_data_->turn_signal_decider.use_prior_turn_signal(
@@ -200,6 +206,7 @@ void NormalLaneChange::insertStopPoint(
   const double stopping_distance = distance_to_terminal - lane_change_buffer - stop_point_buffer;
   if (stopping_distance > 0.0) {
     const auto stop_point = utils::insertStopPoint(stopping_distance, path);
+    setStopPose(stop_point.point.pose);
   }
 }
 
@@ -1176,7 +1183,7 @@ bool NormalLaneChange::isRequiredStop(const bool is_object_coming_from_rear) con
          isAbleToStopSafely() && is_object_coming_from_rear;
 }
 
-bool NormalLaneChange::getAbortPath()
+bool NormalLaneChange::calcAbortPath()
 {
   const auto & route_handler = getRouteHandler();
   const auto & common_param = getCommonParam();
@@ -1284,14 +1291,12 @@ bool NormalLaneChange::getAbortPath()
     reference_lanelets, shifted_path.path.points.at(abort_return_idx).point.pose);
   const PathWithLaneId reference_lane_segment = std::invoke([&]() {
     const double s_start = arc_position.length;
-    double s_end = std::max(
-      lanelet::utils::getLaneletLength2d(reference_lanelets) - minimum_lane_change_length, s_start);
+    double s_end = std::max(lanelet::utils::getLaneletLength2d(reference_lanelets), s_start);
 
     if (route_handler->isInGoalRouteSection(selected_path.info.target_lanes.back())) {
       const auto goal_arc_coordinates =
         lanelet::utils::getArcCoordinates(reference_lanelets, route_handler->getGoalPose());
-      const double forward_length =
-        std::max(goal_arc_coordinates.length - minimum_lane_change_length, s_start);
+      const double forward_length = std::max(goal_arc_coordinates.length, s_start);
       s_end = std::min(s_end, forward_length);
     }
     PathWithLaneId ref = route_handler->getCenterLinePath(reference_lanelets, s_start, s_end, true);
@@ -1301,20 +1306,23 @@ bool NormalLaneChange::getAbortPath()
     return ref;
   });
 
-  PathWithLaneId start_to_abort_return_pose;
-  start_to_abort_return_pose.points.insert(
-    start_to_abort_return_pose.points.end(), shifted_path.path.points.begin(),
-    shifted_path.path.points.begin() + abort_return_idx);
-  if (reference_lane_segment.points.size() > 1) {
-    start_to_abort_return_pose.points.insert(
-      start_to_abort_return_pose.points.end(), (reference_lane_segment.points.begin() + 1),
-      reference_lane_segment.points.end());
-  }
-
   auto abort_path = selected_path;
   abort_path.shifted_path = shifted_path;
-  abort_path.path = start_to_abort_return_pose;
   abort_path.info.shift_line = shift_line;
+
+  {
+    PathWithLaneId aborting_path;
+    aborting_path.points.insert(
+      aborting_path.points.begin(), shifted_path.path.points.begin(),
+      shifted_path.path.points.begin() + abort_return_idx);
+
+    if (!reference_lane_segment.points.empty()) {
+      abort_path.path = utils::combinePath(aborting_path, reference_lane_segment);
+    } else {
+      abort_path.path = aborting_path;
+    }
+  }
+
   abort_path_ = std::make_shared<LaneChangePath>(abort_path);
   return true;
 }
@@ -1381,4 +1389,10 @@ PathSafetyStatus NormalLaneChange::isLaneChangePathSafe(
 
   return path_safety_status;
 }
+
+void NormalLaneChange::setStopPose(const Pose & stop_pose)
+{
+  lane_change_stop_pose_ = stop_pose;
+}
+
 }  // namespace behavior_path_planner

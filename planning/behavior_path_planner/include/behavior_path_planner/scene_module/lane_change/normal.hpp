@@ -72,7 +72,7 @@ public:
 
   TurnSignalInfo updateOutputTurnSignal() override;
 
-  bool getAbortPath() override;
+  bool calcAbortPath() override;
 
   PathSafetyStatus isApprovedPathSafe() const override;
 
@@ -146,6 +146,8 @@ protected:
   LaneChangeTargetObjectIndices filterObject(
     const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelets & target_lanes,
     const lanelet::ConstLanelets & target_backward_lanes) const;
+
+  void setStopPose(const Pose & stop_pose);
 
   rclcpp::Logger logger_ = rclcpp::get_logger("lane_change").get_child(getModuleTypeStr());
 };
