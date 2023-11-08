@@ -135,7 +135,7 @@ BehaviorModuleOutput NormalLaneChange::generateOutput()
 
     if (isStopState()) {
       const auto current_velocity = getEgoVelocity();
-      const auto current_dist = calcSignedArcLength(
+      const auto current_dist = motion_utils::calcSignedArcLength(
         output.path->points, output.path->points.front().point.pose.position, getEgoPosition());
       const auto stop_dist =
         -(current_velocity * current_velocity / (2.0 * planner_data_->parameters.min_acc));
