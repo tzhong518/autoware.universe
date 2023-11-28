@@ -330,16 +330,6 @@ void CrosswalkTrafficLightEstimatorNode::isFlashing(const TrafficSignal & signal
 {
   const auto id = signal.traffic_signal_id;
 
-<<<<<<< HEAD
-  // std::cout << id << ", color:" << +signal.elements.front().color << " , last_colors:";
-  // if (last_colors_.count(id) > 0) {
-  //   std::vector<TrafficSignalAndTime> history = last_colors_.at(id);
-  //   for (const auto & h : history) {
-  //     std::cout << +h.first.elements.front().color << " ";
-  //   }
-  // }
-  // std::cout << std::endl;
-=======
   // std::cout << id << " last_colors_: ";
   // if (last_colors_.count(id) > 0) {
   //   std::vector<TrafficSignalAndTime> history = last_colors_.at(id);
@@ -347,7 +337,6 @@ void CrosswalkTrafficLightEstimatorNode::isFlashing(const TrafficSignal & signal
   //     std::cout << +h.first.elements.front().color;
   //   }
   // }
->>>>>>> 91fef2d1d (fix: refactor)
 
   // no record of detected color in last_detect_color_hold_time_(2.0s)
   if (is_flashing_.count(id) == 0) {

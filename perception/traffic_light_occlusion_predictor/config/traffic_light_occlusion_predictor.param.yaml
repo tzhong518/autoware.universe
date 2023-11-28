@@ -7,5 +7,5 @@
     # If no cloud with timestamp difference smaller than max_image_cloud_delay is found, the node would publish occlusion ratio of all
     # traffic lights as 0
     max_image_cloud_delay: 0.5
-    max_wait_t: 0.08
+    max_wait_t: 0.05
     max_occlusion_ratio: 50
