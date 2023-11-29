@@ -251,7 +251,7 @@ void RTCInterface::clearCooperateStatus()
   stored_commands_.clear();
 }
 
-bool RTCInterface::isActivated(const UUID & uuid)
+bool RTCInterface::isActivated(const UUID & uuid) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   const auto itr = std::find_if(
@@ -271,13 +271,29 @@ bool RTCInterface::isActivated(const UUID & uuid)
   return false;
 }
 
-bool RTCInterface::isRegistered(const UUID & uuid)
+bool RTCInterface::isRegistered(const UUID & uuid) const
 {
   std::lock_guard<std::mutex> lock(mutex_);
   const auto itr = std::find_if(
     registered_status_.statuses.begin(), registered_status_.statuses.end(),
     [uuid](auto & s) { return s.uuid == uuid; });
   return itr != registered_status_.statuses.end();
+}
+
+bool RTCInterface::isRTCEnabled(const UUID & uuid) const
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+  const auto itr = std::find_if(
+    registered_status_.statuses.begin(), registered_status_.statuses.end(),
+    [uuid](auto & s) { return s.uuid == uuid; });
+
+  if (itr != registered_status_.statuses.end()) {
+    return !itr->auto_mode;
+  }
+
+  RCLCPP_WARN_STREAM(
+    getLogger(), "[isRTCEnabled] uuid : " << to_string(uuid) << " is not found." << std::endl);
+  return is_auto_mode_init_;
 }
 
 void RTCInterface::lockCommandUpdate()
