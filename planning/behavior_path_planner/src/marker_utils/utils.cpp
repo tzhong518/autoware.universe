@@ -40,6 +40,7 @@ CollisionCheckDebugPair createObjectDebug(const ExtendedPredictedObject & obj)
   CollisionCheckDebug debug;
   debug.current_obj_pose = obj.initial_pose.pose;
   debug.current_twist = obj.initial_twist.twist;
+  debug.obj_shape = obj.shape;
   return {tier4_autoware_utils::toHexString(obj.uuid), debug};
 }
 

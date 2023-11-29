@@ -274,6 +274,8 @@ bool checkCollision(
     const auto interpolated_data = getInterpolatedPoseWithVelocityAndPolygonStamped(
       predicted_ego_path, current_time, ego_vehicle_info);
     if (!interpolated_data) {
+      debug.expected_obj_pose = obj_pose;
+      debug.extended_obj_polygon = obj_polygon;
       continue;
     }
     const auto & ego_pose = interpolated_data->pose;
