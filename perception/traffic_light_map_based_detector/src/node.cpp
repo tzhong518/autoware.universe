@@ -427,6 +427,10 @@ void MapBasedDetector::getVisibleTrafficLights(
     }
     // traffic light bottom left
     const auto & tl_bl = traffic_light.front();
+    // std::cout << "tl_bl:" << tl_bl << std::endl;
+    // if (tl_bl.z() > 10.0) {
+    //   continue;
+    // }
     // traffic light bottom right
     const auto & tl_br = traffic_light.back();
     // check distance range
@@ -441,7 +445,7 @@ void MapBasedDetector::getVisibleTrafficLights(
       // check angle range
       const double tl_yaw = tier4_autoware_utils::normalizeRadian(
         std::atan2(tl_br.y() - tl_bl.y(), tl_br.x() - tl_bl.x()) + M_PI_2);
-      constexpr double max_angle_range = tier4_autoware_utils::deg2rad(40.0);
+      constexpr double max_angle_range = tier4_autoware_utils::deg2rad(80.0);
 
       // get direction of z axis
       tf2::Vector3 camera_z_dir(0, 0, 1);

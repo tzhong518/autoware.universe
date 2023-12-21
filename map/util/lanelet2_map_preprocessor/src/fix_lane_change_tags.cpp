@@ -21,6 +21,7 @@
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/primitives/LaneletSequence.h>
 #include <lanelet2_io/Io.h>
+#include <lanelet2_routing/RoutingGraph.h>
 
 #include <iostream>
 #include <unordered_set>
@@ -66,7 +67,7 @@ void fixTags(lanelet::LaneletMapPtr & lanelet_map_ptr)
   lanelet::traffic_rules::TrafficRulesPtr trafficRules =
     lanelet::traffic_rules::TrafficRulesFactory::create(
       lanelet::Locations::Germany, lanelet::Participants::Vehicle);
-  lanelet::routing::RoutingGraphUPtr routingGraph =
+  lanelet::routing::RoutingGraphPtr routingGraph =
     lanelet::routing::RoutingGraph::build(*lanelet_map_ptr, *trafficRules);
 
   for (auto & llt : lanelets) {

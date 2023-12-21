@@ -16,6 +16,7 @@
 
 #include <lanelet2_extension/utility/message_conversion.hpp>
 
+#include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 
 #include <map>

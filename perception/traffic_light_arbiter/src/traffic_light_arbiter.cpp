@@ -17,6 +17,7 @@
 #include <traffic_light_arbiter/traffic_light_arbiter.hpp>
 
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
+#include <lanelet2_routing/RoutingGraph.h>
 
 #include <map>
 #include <memory>
