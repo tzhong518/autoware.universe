@@ -44,6 +44,13 @@ def generate_launch_description():
     add_launch_arg(
         "output/traffic_signals", "/perception/traffic_light_recognition/traffic_signals"
     )
+    add_launch_arg(
+        "output/car/traffic_signals", "/perception/traffic_light_recognition/car/traffic_signals"
+    )
+    add_launch_arg(
+        "output/pedestrian/traffic_signals",
+        "/perception/traffic_light_recognition/pedestrian/traffic_signals",
+    )
 
     # traffic_light_fine_detector
     add_launch_arg(
@@ -63,11 +70,21 @@ def generate_launch_description():
     # traffic_light_classifier
     add_launch_arg("classifier_type", "1")
     add_launch_arg(
-        "classifier_model_path",
+        "car_classifier_model_path",
         os.path.join(classifier_share_dir, "data", "traffic_light_classifier_efficientNet_b1.onnx"),
     )
     add_launch_arg(
-        "classifier_label_path", os.path.join(classifier_share_dir, "data", "lamp_labels.txt")
+        "pedestrian_classifier_model_path",
+        os.path.join(
+            classifier_share_dir, "data", "pedestrian_traffic_light_classifier_efficientNet_b1.onnx"
+        ),
+    )
+    add_launch_arg(
+        "car_classifier_label_path", os.path.join(classifier_share_dir, "data", "lamp_labels.txt")
+    )
+    add_launch_arg(
+        "pedestrian_classifier_label_path",
+        os.path.join(classifier_share_dir, "data", "lamp_labels_ped.txt"),
     )
     add_launch_arg("classifier_precision", "fp16")
     add_launch_arg("classifier_mean", "[123.675, 116.28, 103.53]")
@@ -91,23 +108,56 @@ def generate_launch_description():
             ComposableNode(
                 package="traffic_light_classifier",
                 plugin="traffic_light::TrafficLightClassifierNodelet",
-                name="traffic_light_classifier",
+                name="car_traffic_light_classifier",
                 namespace="classification",
                 parameters=[
-                    create_parameter_dict(
-                        "approximate_sync",
-                        "classifier_type",
-                        "classifier_model_path",
-                        "classifier_label_path",
-                        "classifier_precision",
-                        "classifier_mean",
-                        "classifier_std",
-                    )
+                    {
+                        "approximate_sync": LaunchConfiguration("approximate_sync"),
+                        "classifier_type": LaunchConfiguration("classifier_type"),
+                        "classify_traffic_light_type": 0,
+                        "classifier_model_path": LaunchConfiguration("car_classifier_model_path"),
+                        "classifier_label_path": LaunchConfiguration("car_classifier_label_path"),
+                        "classifier_precision": LaunchConfiguration("classifier_precision"),
+                        "classifier_mean": LaunchConfiguration("classifier_mean"),
+                        "classifier_std": LaunchConfiguration("classifier_std"),
+                        "backlight_threshold": LaunchConfiguration("backlight_threshold"),
+                    }
                 ],
                 remappings=[
                     ("~/input/image", LaunchConfiguration("input/image")),
                     ("~/input/rois", LaunchConfiguration("output/rois")),
-                    ("~/output/traffic_signals", "classified/traffic_signals"),
+                    ("~/output/traffic_signals", "classified/car/traffic_signals"),
+                ],
+                extra_arguments=[
+                    {"use_intra_process_comms": LaunchConfiguration("use_intra_process")}
+                ],
+            ),
+            ComposableNode(
+                package="traffic_light_classifier",
+                plugin="traffic_light::TrafficLightClassifierNodelet",
+                name="pedestrian_traffic_light_classifier",
+                namespace="classification",
+                parameters=[
+                    {
+                        "approximate_sync": LaunchConfiguration("approximate_sync"),
+                        "classifier_type": LaunchConfiguration("classifier_type"),
+                        "classify_traffic_light_type": 1,
+                        "classifier_model_path": LaunchConfiguration(
+                            "pedestrian_classifier_model_path"
+                        ),
+                        "classifier_label_path": LaunchConfiguration(
+                            "pedestrian_classifier_label_path"
+                        ),
+                        "classifier_precision": LaunchConfiguration("classifier_precision"),
+                        "classifier_mean": LaunchConfiguration("classifier_mean"),
+                        "classifier_std": LaunchConfiguration("classifier_std"),
+                        "backlight_threshold": LaunchConfiguration("backlight_threshold"),
+                    }
+                ],
+                remappings=[
+                    ("~/input/image", LaunchConfiguration("input/image")),
+                    ("~/input/rois", LaunchConfiguration("output/rois")),
+                    ("~/output/traffic_signals", "classified/pedestrian/traffic_signals"),
                 ],
                 extra_arguments=[
                     {"use_intra_process_comms": LaunchConfiguration("use_intra_process")}
