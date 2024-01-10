@@ -92,7 +92,7 @@ void CloudOcclusionPredictor::predict(
     if (rois_msg->rois[i].roi.height == 0) {
       continue;
     }
-    calcRoiVector3D(
+    calcRoiVectex3D(
       rois_msg->rois[i], pinhole_model, traffic_light_position_map, tf_camera2map, roi_tls[i],
       roi_brs[i]);
   }
