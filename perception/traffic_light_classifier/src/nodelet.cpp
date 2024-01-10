@@ -98,7 +98,6 @@ void TrafficLightClassifierNodelet::imageRoiCallback(
   output_msg.signals.resize(input_rois_msg->rois.size());
 
   std::vector<cv::Mat> images;
-  std::vector<size_t> backlight_indices;
   for (size_t i = 0; i < input_rois_msg->rois.size(); i++) {
     // skip if the roi is not detected
     if (input_rois_msg->rois.at(i).roi.height == 0) {
@@ -114,9 +113,6 @@ void TrafficLightClassifierNodelet::imageRoiCallback(
     const sensor_msgs::msg::RegionOfInterest & roi = input_rois_msg->rois.at(i).roi;
 
     auto roi_img = cv_ptr->image(cv::Rect(roi.x_offset, roi.y_offset, roi.width, roi.height));
-    if (is_harsh_backlight(roi_img)) {
-      backlight_indices.emplace_back(i);
-    }
     images.emplace_back(roi_img);
   }
 
@@ -138,15 +134,6 @@ void TrafficLightClassifierNodelet::imageRoiCallback(
       element.confidence = 0.0;
       tlr_sig.elements.push_back(element);
       output_msg.signals.push_back(tlr_sig);
-    }
-  }
-
-  for (const auto & idx : backlight_indices) {
-    auto & elements = output_msg.signals.at(idx).elements;
-    for (auto & element : elements) {
-      element.color = tier4_perception_msgs::msg::TrafficLightElement::UNKNOWN;
-      element.shape = tier4_perception_msgs::msg::TrafficLightElement::UNKNOWN;
-      element.confidence = 0.0;
     }
   }
 
