@@ -21,7 +21,7 @@
     
     
       
-        <title>Index - Autoware Universe Documentation</title>
+        <title>Crosswalk - Autoware Universe Documentation</title>
       
     
     
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Index
+              Crosswalk
             
           </span>
         </div>
@@ -7746,6 +7746,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_7_13_2" id="__nav_7_13_2_label" tabindex="0">
@@ -7810,6 +7812,20 @@
     <li class="md-nav__item">
       <a href="../../perception/image_projection_based_fusion/docs/roi-pointcloud-fusion/" class="md-nav__link">
         roi_pointcloud_fusion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../perception/image_projection_based_fusion/docs/segmentation-pointcloud-fusion/" class="md-nav__link">
+        segmentation_pointcloud_fusion
       </a>
     </li>
   
@@ -8497,6 +8513,8 @@
         
           
         
+          
+        
       
       
         
@@ -8541,6 +8559,20 @@
     <li class="md-nav__item">
       <a href="../../perception/probabilistic_occupancy_grid_map/pointcloud-based-occupancy-grid-map/" class="md-nav__link">
         pointcloud based occupancy grid map
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../perception/probabilistic_occupancy_grid_map/synchronized_grid_map_fusion/" class="md-nav__link">
+        synchronized OGM fusion
       </a>
     </li>
   
@@ -9885,7 +9917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../behavior_path_planner/docs/behavior_path_planner_dynamic_avoidance_design" class="md-nav__link">
+      <a href="../behavior_path_dynamic_avoidance_module" class="md-nav__link">
         Dynamic Avoidance
       </a>
     </li>
@@ -14497,6 +14529,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -14505,71 +14539,125 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#crosswalk" class="md-nav__link">
-    Crosswalk
-  </a>
-  
-    <nav class="md-nav" aria-label="Crosswalk">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#role" class="md-nav__link">
     Role
   </a>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+    <nav class="md-nav" aria-label="Features">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#activation-timing" class="md-nav__link">
-    Activation Timing
+  <a href="#yield" class="md-nav__link">
+    Yield
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#module-parameters" class="md-nav__link">
-    Module Parameters
+  <a href="#smooth-yield-decision" class="md-nav__link">
+    Smooth Yield Decision
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#inner-workings-algorithms" class="md-nav__link">
-    Inner-workings / Algorithms
+  <a href="#safety-slow-down-behavior" class="md-nav__link">
+    Safety Slow Down Behavior
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
-    Limitations
+  <a href="#stuck-vehicle-detection" class="md-nav__link">
+    Stuck Vehicle Detection
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#known-issues" class="md-nav__link">
-    Known Issues
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#debugging" class="md-nav__link">
-    Debugging
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#referencesexternal-links" class="md-nav__link">
-    References/External links
+  <a href="#others" class="md-nav__link">
+    Others
   </a>
   
 </li>
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-issues" class="md-nav__link">
+    Known Issues
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    Debugging
+  </a>
+  
+    <nav class="md-nav" aria-label="Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visualization-of-debug-markers" class="md-nav__link">
+    Visualization of debug markers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visualization-of-time-to-collision" class="md-nav__link">
+    Visualization of Time-To-Collision
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trouble-shooting" class="md-nav__link">
+    Trouble Shooting
+  </a>
+  
+    <nav class="md-nav" aria-label="Trouble Shooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#behavior" class="md-nav__link">
+    Behavior
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-tuning" class="md-nav__link">
+    Parameter Tuning
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencesexternal-links" class="md-nav__link">
+    References/External links
+  </a>
   
 </li>
       
@@ -14591,233 +14679,62 @@
   
 
 
-  <h1>Index</h1>
-
-<div><h2 id="crosswalk">Crosswalk<a class="headerlink" href="#crosswalk" title="Permanent link">#</a></h2>
-<h3 id="role">Role<a class="headerlink" href="#role" title="Permanent link">#</a></h3>
-<p>This module judges whether the ego should stop in front of the crosswalk in order to provide safe passage of pedestrians and bicycles based on object's behavior and surround traffic.</p>
+<div><h1 id="crosswalk">Crosswalk<a class="headerlink" href="#crosswalk" title="Permanent link">#</a></h1>
+<h2 id="role">Role<a class="headerlink" href="#role" title="Permanent link">#</a></h2>
+<p>This module judges whether the ego should stop in front of the crosswalk in order to provide safe passage for crosswalk users, such as pedestrians and bicycles, based on the objects' behavior and surround traffic.</p>
 <figure>
-<p><img alt="example" src="docs/example.png" width="1000">
-  </p>
-<figcaption>crosswalk module</figcaption>
+<p><img alt="crosswalk_module" src="docs/crosswalk_module.svg" width="1100"></p>
 </figure>
-<h3 id="activation-timing">Activation Timing<a class="headerlink" href="#activation-timing" title="Permanent link">#</a></h3>
-<p>The manager launch crosswalk scene modules when the reference path conflicts crosswalk lanelets.</p>
-<h3 id="module-parameters">Module Parameters<a class="headerlink" href="#module-parameters" title="Permanent link">#</a></h3>
-<h4 id="common-parameters">Common parameters<a class="headerlink" href="#common-parameters" title="Permanent link">#</a></h4>
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">#</a></h2>
+<h3 id="yield">Yield<a class="headerlink" href="#yield" title="Permanent link">#</a></h3>
+<h4 id="target-object">Target Object<a class="headerlink" href="#target-object" title="Permanent link">#</a></h4>
+<p>The crosswalk module handles objects of the types defined by the following parameters in the <code>object_filtering.target_object</code> namespace.</p>
 <table>
 <thead>
 <tr>
 <th>Parameter</th>
+<th>Unit</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>common.show_processing_time</code></td>
+<td><code>unknown</code></td>
+<td>[-]</td>
 <td>bool</td>
-<td>whether to show processing time</td>
+<td>whether to look and stop by UNKNOWN objects</td>
+</tr>
+<tr>
+<td><code>pedestrian</code></td>
+<td>[-]</td>
+<td>bool</td>
+<td>whether to look and stop by PEDESTRIAN objects</td>
+</tr>
+<tr>
+<td><code>bicycle</code></td>
+<td>[-]</td>
+<td>bool</td>
+<td>whether to look and stop by BICYCLE objects</td>
+</tr>
+<tr>
+<td><code>motorcycle</code></td>
+<td>[-]</td>
+<td>bool</td>
+<td>whether to look and stop by MOTORCYCLE objects</td>
 </tr>
 </tbody>
 </table>
-<h4 id="parameters-for-input-data">Parameters for input data<a class="headerlink" href="#parameters-for-input-data" title="Permanent link">#</a></h4>
+<p>In order to handle the crosswalk users crossing the neighborhood but outside the crosswalk, the crosswalk module creates an attention area around the crosswalk, shown as the yellow polygon in the figure. If the object's predicted path collides with the attention area, the object will be targeted for yield.</p>
+<figure>
+<p><img alt="crosswalk_attention_range" src="docs/crosswalk_attention_range.svg" width="600"></p>
+</figure>
+<p>The neighborhood is defined by the following parameter in the <code>object_filtering.target_object</code> namespace.</p>
 <table>
 <thead>
 <tr>
 <th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>common.traffic_light_state_timeout</code></td>
-<td>double</td>
-<td>[s] timeout threshold for traffic light signal</td>
-</tr>
-</tbody>
-</table>
-<h4 id="parameters-for-stop-position">Parameters for stop position<a class="headerlink" href="#parameters-for-stop-position" title="Permanent link">#</a></h4>
-<p>The crosswalk module determines a stop position at least <code>stop_distance_from_object</code> away from the object.</p>
-<figure>
-<p><img alt="stop_distance_from_object" src="docs/stop_margin.svg" width="1000">
-  </p>
-<figcaption>stop margin</figcaption>
-</figure>
-<p>The stop line is the reference point for the stopping position of the vehicle, but if there is no stop line in front of the crosswalk, the position <code>stop_distance_from_crosswalk</code> meters before the crosswalk is the virtual stop line for the vehicle. Then, if the stop position determined from <code>stop_distance_from_object</code> exists in front of the stop line determined from the HDMap or <code>stop_distance_from_crosswalk</code>, the actual stop position is determined according to <code>stop_distance_from_object</code> in principle, and vice versa.</p>
-<figure>
-<p><img alt="stop_line" src="docs/stop_line.svg" width="700">
-  </p>
-<figcaption>explicit stop line</figcaption>
-</figure>
-<figure>
-<p><img alt="stop_distance_from_crosswalk" src="docs/stop_line_distance.svg" width="700">
-  </p>
-<figcaption>virtual stop point</figcaption>
-</figure>
-<p>On the other hand, if pedestrian (bicycle) is crossing <strong>wide</strong> crosswalks seen in scramble intersections, and the pedestrian position is more than <code>far_object_threshold</code> meters away from the stop line, the actual stop position is determined to be <code>stop_distance_from_object</code> and pedestrian position, not at the stop line.</p>
-<figure>
-<p><img alt="far_object_threshold" src="docs/stop_line_margin.svg" width="1000">
-  </p>
-<figcaption>stop at wide crosswalk</figcaption>
-</figure>
-<p>See the workflow in algorithms section.</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>stop_position.stop_distance_from_object</code></td>
-<td>double</td>
-<td>[m] the vehicle decelerates to be able to stop in front of object with margin</td>
-</tr>
-<tr>
-<td><code>stop_position.stop_distance_from_crosswalk</code></td>
-<td>double</td>
-<td>[m] make stop line away from crosswalk when no explicit stop line exists</td>
-</tr>
-<tr>
-<td><code>stop_position.far_object_threshold</code></td>
-<td>double</td>
-<td>[m] if objects cross X meters behind the stop line, the stop position is determined according to the object position (stop_distance_from_object meters before the object)</td>
-</tr>
-<tr>
-<td><code>stop_position.stop_position_threshold</code></td>
-<td>double</td>
-<td>[m] threshold for check whether the vehicle stop in front of crosswalk</td>
-</tr>
-</tbody>
-</table>
-<h4 id="parameters-for-egos-slow-down-velocity">Parameters for ego's slow down velocity<a class="headerlink" href="#parameters-for-egos-slow-down-velocity" title="Permanent link">#</a></h4>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>slow_velocity</code></td>
-<td>double</td>
-<td>[m/s] target vehicle velocity when module receive slow down command from FOA</td>
-</tr>
-<tr>
-<td><code>max_slow_down_jerk</code></td>
-<td>double</td>
-<td>[m/sss] minimum jerk deceleration for safe brake</td>
-</tr>
-<tr>
-<td><code>max_slow_down_accel</code></td>
-<td>double</td>
-<td>[m/ss] minimum accel deceleration for safe brake</td>
-</tr>
-<tr>
-<td><code>no_relax_velocity</code></td>
-<td>double</td>
-<td>[m/s] if the current velocity is less than X m/s, ego always stops at the stop position(not relax deceleration constraints)</td>
-</tr>
-</tbody>
-</table>
-<h4 id="parameters-for-stuck-vehicle">Parameters for stuck vehicle<a class="headerlink" href="#parameters-for-stuck-vehicle" title="Permanent link">#</a></h4>
-<p>If there are low speed or stop vehicle ahead of the crosswalk, and there is not enough space between the crosswalk and the vehicle (see following figure), closing the distance to that vehicle could cause Ego to be stuck on the crosswalk. So, in this situation, this module plans to stop before the crosswalk and wait until the vehicles move away, even if there are no pedestrians or bicycles.</p>
-<figure>
-<p><img alt="stuck_vehicle_attention_range" src="docs/stuck_vehicle_attention_range.svg" width="1000">
-  </p>
-<figcaption>stuck vehicle attention range</figcaption>
-</figure>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>stuck_vehicle.stuck_vehicle_velocity</code></td>
-<td>double</td>
-<td>[m/s] maximum velocity threshold whether the vehicle is stuck</td>
-</tr>
-<tr>
-<td><code>stuck_vehicle.max_stuck_vehicle_lateral_offset</code></td>
-<td>double</td>
-<td>[m] maximum lateral offset for stuck vehicle position should be looked</td>
-</tr>
-<tr>
-<td><code>stuck_vehicle.stuck_vehicle_attention_range</code></td>
-<td>double</td>
-<td>[m] the detection area is defined as X meters behind the crosswalk</td>
-</tr>
-</tbody>
-</table>
-<h4 id="parameters-for-pass-judge-logic">Parameters for pass judge logic<a class="headerlink" href="#parameters-for-pass-judge-logic" title="Permanent link">#</a></h4>
-<p>Also see algorithm section.</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>pass_judge.ego_pass_first_margin</code></td>
-<td>double</td>
-<td>[s] time margin for ego pass first situation</td>
-</tr>
-<tr>
-<td><code>pass_judge.ego_pass_later_margin</code></td>
-<td>double</td>
-<td>[s] time margin for object pass first situation</td>
-</tr>
-<tr>
-<td><code>pass_judge.stop_object_velocity_threshold</code></td>
-<td>double</td>
-<td>[m/s] velocity threshold for the module to judge whether the objects is stopped</td>
-</tr>
-<tr>
-<td><code>pass_judge.min_object_velocity</code></td>
-<td>double</td>
-<td>[m/s] minimum object velocity (compare the estimated velocity by perception module with this parameter and adopt the larger one to calculate TTV.)</td>
-</tr>
-<tr>
-<td><code>pass_judge.timeout_no_intention_to_walk</code></td>
-<td>double</td>
-<td>[s] if the pedestrian does not move for X seconds after stopping before the crosswalk, the module judge that ego is able to pass first.</td>
-</tr>
-<tr>
-<td><code>pass_judge.timeout_ego_stop_for_yield</code></td>
-<td>double</td>
-<td>[s] the amount of time which ego should be stopping to query whether it yields or not.</td>
-</tr>
-</tbody>
-</table>
-<h4 id="parameters-for-object-filtering">Parameters for object filtering<a class="headerlink" href="#parameters-for-object-filtering" title="Permanent link">#</a></h4>
-<p>As a countermeasure against pedestrians attempting to cross outside the crosswalk area, this module watches not only the crosswalk zebra area but also in front of and behind space of the crosswalk, and if there are pedestrians or bicycles attempting to pass through the watch area, this module judges whether ego should pass or stop.</p>
-<figure>
-<p><img alt="crosswalk_attention_range" src="docs/crosswalk_attention_range.svg" width="1000">
-  </p>
-<figcaption>crosswalk attention range</figcaption>
-</figure>
-<p>This module mainly looks the following objects as target objects. There are also optional flags that enables the pass/stop decision for <code>motorcycle</code> and <code>unknown</code> objects.</p>
-<ul>
-<li>pedestrian</li>
-<li>bicycle</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
+<th>Unit</th>
 <th>Type</th>
 <th>Description</th>
 </tr>
@@ -14825,88 +14742,441 @@
 <tbody>
 <tr>
 <td><code>crosswalk_attention_range</code></td>
+<td>[m]</td>
 <td>double</td>
-<td>[m] the detection area is defined as -X meters before the crosswalk to +X meters behind the crosswalk</td>
-</tr>
-<tr>
-<td><code>target/unknown</code></td>
-<td>bool</td>
-<td>whether to look and stop by UNKNOWN objects</td>
-</tr>
-<tr>
-<td><code>target/bicycle</code></td>
-<td>bool</td>
-<td>whether to look and stop by BICYCLE objects</td>
-</tr>
-<tr>
-<td><code>target/motorcycle</code></td>
-<td>bool</td>
-<td>whether to look and stop MOTORCYCLE objects</td>
-</tr>
-<tr>
-<td><code>target/pedestrian</code></td>
-<td>bool</td>
-<td>whether to look and stop PEDESTRIAN objects</td>
+<td>the detection area is defined as -X meters before the crosswalk to +X meters behind the crosswalk</td>
 </tr>
 </tbody>
 </table>
-<h3 id="inner-workings-algorithms">Inner-workings / Algorithms<a class="headerlink" href="#inner-workings-algorithms" title="Permanent link">#</a></h3>
-<h4 id="stop-position">Stop position<a class="headerlink" href="#stop-position" title="Permanent link">#</a></h4>
-<p>The stop position is determined by the existence of the stop line defined by the HDMap, the positional relationship between the stop line and the pedestrians and bicycles, and each parameter.</p>
-<p><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXMtYXNjaWkiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgaGVpZ2h0PSIzODNweCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgc3R5bGU9IndpZHRoOjEyODdweDtoZWlnaHQ6MzgzcHg7YmFja2dyb3VuZDojRkZGRkZGOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTI4NyAzODMiIHdpZHRoPSIxMjg3cHgiIHpvb21BbmRQYW49Im1hZ25pZnkiPjxkZWZzLz48Zz48ZWxsaXBzZSBjeD0iNjQ4IiBjeT0iMjAiIGZpbGw9IiMyMjIyMjIiIHJ4PSIxMCIgcnk9IjEwIiBzdHlsZT0ic3Ryb2tlOiMyMjIyMjI7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjMzLjk2ODgiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNDI5IiB4PSI0MzMuNSIgeT0iNTAiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxNTAiIHg9IjQ0My41IiB5PSI3MS4xMzg3Ij5jYWxjdWxhdGUgc3RvcCBwb2ludCBmcm9tPC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxOTUiIHg9IjU5Ny41IiB5PSI3MS4xMzg3Ij5zdG9wX2Rpc3RhbmNlX2Zyb21fb2JqZWN0PC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjU2IiB4PSI3OTYuNSIgeT0iNzEuMTM4NyI+KFBPSU5ULTEpPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iNTEzLjUsMTAzLjk2ODgsNzgyLjUsMTAzLjk2ODgsNzk0LjUsMTE1Ljk2ODgsNzgyLjUsMTI3Ljk2ODgsNTEzLjUsMTI3Ljk2ODgsNTAxLjUsMTE1Ljk2ODgsNTEzLjUsMTAzLjk2ODgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjI2OSIgeD0iNTEzLjUiIHk9IjExOS43NzY5Ij5UaGVyZSBpcyB0aGUgc3RvcCBsaW5lIGluIGZyb250IG9mIHRoZSBjcm9zc3dhbGs/PC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjIxIiB4PSI0ODAuNSIgeT0iMTEzLjM3NDUiPnllczwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxNCIgeD0iNzk0LjUiIHk9IjExMy4zNzQ1Ij5ubzwvdGV4dD48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjMzLjk2ODgiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMjk3IiB4PSIyOTguNSIgeT0iMTM3Ljk2ODgiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIyNzciIHg9IjMwOC41IiB5PSIxNTkuMTA3NCI+Y2FsY3VsYXRlIHN0b3AgcG9pbnQgZnJvbSBzdG9wIGxpbmUgKFBPSU5ULTIuMSk8L3RleHQ+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzMy45Njg4IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjQ2NyIgeD0iNjE1LjUiIHk9IjEzNy45Njg4Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTUwIiB4PSI2MjUuNSIgeT0iMTU5LjEwNzQiPmNhbGN1bGF0ZSBzdG9wIHBvaW50IGZyb208L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjIyMSIgeD0iNzc5LjUiIHk9IjE1OS4xMDc0Ij5zdG9wX2Rpc3RhbmNlX2Zyb21fY3Jvc3N3YWxrPC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjY4IiB4PSIxMDA0LjUiIHk9IjE1OS4xMDc0Ij4oUE9JTlQtMi4yKTwvdGV4dD48cG9seWdvbiBmaWxsPSIjRjFGMUYxIiBwb2ludHM9IjY0OCwxNzcuOTM3NSw2NjAsMTg5LjkzNzUsNjQ4LDIwMS45Mzc1LDYzNiwxODkuOTM3NSw2NDgsMTc3LjkzNzUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iMzIsMjIxLjkzNzUsNDY1LDIyMS45Mzc1LDQ3NywyMzMuOTM3NSw0NjUsMjQ1LjkzNzUsMzIsMjQ1LjkzNzUsMjAsMjMzLjkzNzUsMzIsMjIxLjkzNzUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjIxIiB4PSIyNTIuNSIgeT0iMjU2LjE0NzkiPnllczwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMTUiIHg9IjMyIiB5PSIyMzcuNzQ1NiI+VGhlIGRpc3RhbmNlIGVnbyB0bzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgZm9udC13ZWlnaHQ9ImJvbGQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNTQiIHg9IjE1MSIgeT0iMjM3Ljc0NTYiPlBPSU5ULTE8L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTk4IiB4PSIyMDkiIHk9IjIzNy43NDU2Ij5pcyBzaG9ydGVyIHRoYW4gdGhlIGRpc3RhbmNlIGVnbyB0bzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgZm9udC13ZWlnaHQ9ImJvbGQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNTQiIHg9IjQxMSIgeT0iMjM3Ljc0NTYiPlBPSU5ULTI8L3RleHQ+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzMy45Njg4IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjE0NyIgeD0iMTc1IiB5PSIyNzguNzQyMiIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjEyNyIgeD0iMTg1IiB5PSIyOTkuODgwOSI+ZWdvIHN0b3BzIGF0IFBPSU5ULTE8L3RleHQ+PHBvbHlnb24gZmlsbD0iI0YxRjFGMSIgcG9pbnRzPSI1MDksMjIxLjkzNzUsMTA5NiwyMjEuOTM3NSwxMTA4LDIzMy45Mzc1LDEwOTYsMjQ1LjkzNzUsNTA5LDI0NS45Mzc1LDQ5NywyMzMuOTM3NSw1MDksMjIxLjkzNzUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjIxIiB4PSI4MDYuNSIgeT0iMjU2LjE0NzkiPnllczwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMTUiIHg9IjUwOSIgeT0iMjM3Ljc0NTYiPlRoZSBkaXN0YW5jZSBlZ28gdG88L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtd2VpZ2h0PSJib2xkIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjU0IiB4PSI2MjgiIHk9IjIzNy43NDU2Ij5QT0lOVC0xPC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjE5NCIgeD0iNjg2IiB5PSIyMzcuNzQ1NiI+aXMgbG9uZ2VyIHRoYW4gdGhlIGRpc3RhbmNlIGVnbyB0bzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgZm9udC13ZWlnaHQ9ImJvbGQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNTQiIHg9Ijg4NCIgeT0iMjM3Ljc0NTYiPlBPSU5ULTI8L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iOSIgeD0iOTQyIiB5PSIyMzcuNzQ1NiI+KzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgZm9udC13ZWlnaHQ9ImJvbGQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTQxIiB4PSI5NTUiIHk9IjIzNy43NDU2Ij5mYXJfb2JqZWN0X3RocmVzaG9sZDwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxNCIgeD0iMTEwOCIgeT0iMjMxLjM0MzMiPm5vPC90ZXh0PjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzMuOTY4OCIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxNDciIHg9IjcyOSIgeT0iMjc4Ljc0MjIiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMjciIHg9IjczOSIgeT0iMjk5Ljg4MDkiPmVnbyBzdG9wcyBhdCBQT0lOVC0xPC90ZXh0PjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzMuOTY4OCIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxNDgiIHg9IjExMjgiIHk9IjI3NS4zMzk4Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTI4IiB4PSIxMTM4IiB5PSIyOTYuNDc4NSI+ZWdvIHN0b3BzIGF0IFBPSU5ULTI8L3RleHQ+PGVsbGlwc2UgY3g9IjY0OCIgY3k9IjM2Mi43MTA5IiBmaWxsPSJub25lIiByeD0iMTAiIHJ5PSIxMCIgc3R5bGU9InN0cm9rZTojMjIyMjIyO3N0cm9rZS13aWR0aDoxLjU7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMjIyMjIyO3N0cm9rZS13aWR0aDoyLjU7IiB4MT0iNjQxLjgxMjgiIHgyPSI2NTQuMTg3MiIgeTE9IjM1Ni41MjM4IiB5Mj0iMzY4Ljg5ODEiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMyMjIyMjI7c3Ryb2tlLXdpZHRoOjIuNTsiIHgxPSI2NTQuMTg3MiIgeDI9IjY0MS44MTI4IiB5MT0iMzU2LjUyMzgiIHkyPSIzNjguODk4MSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjY0OCIgeDI9IjY0OCIgeTE9IjMwIiB5Mj0iNTAiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjY0NCw0MCw2NDgsNTAsNjUyLDQwLDY0OCw0NCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iNTAxLjUiIHgyPSI0NDciIHkxPSIxMTUuOTY4OCIgeTI9IjExNS45Njg4Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iNDQ3IiB4Mj0iNDQ3IiB5MT0iMTE1Ljk2ODgiIHkyPSIxMzcuOTY4OCIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iNDQzLDEyNy45Njg4LDQ0NywxMzcuOTY4OCw0NTEsMTI3Ljk2ODgsNDQ3LDEzMS45Njg4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI3OTQuNSIgeDI9Ijg0OSIgeTE9IjExNS45Njg4IiB5Mj0iMTE1Ljk2ODgiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI4NDkiIHgyPSI4NDkiIHkxPSIxMTUuOTY4OCIgeTI9IjEzNy45Njg4Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI4NDUsMTI3Ljk2ODgsODQ5LDEzNy45Njg4LDg1MywxMjcuOTY4OCw4NDksMTMxLjk2ODgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjQ0NyIgeDI9IjQ0NyIgeTE9IjE3MS45Mzc1IiB5Mj0iMTg5LjkzNzUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI0NDciIHgyPSI2MzYiIHkxPSIxODkuOTM3NSIgeTI9IjE4OS45Mzc1Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI2MjYsMTg1LjkzNzUsNjM2LDE4OS45Mzc1LDYyNiwxOTMuOTM3NSw2MzAsMTg5LjkzNzUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9Ijg0OSIgeDI9Ijg0OSIgeTE9IjE3MS45Mzc1IiB5Mj0iMTg5LjkzNzUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI4NDkiIHgyPSI2NjAiIHkxPSIxODkuOTM3NSIgeTI9IjE4OS45Mzc1Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI2NzAsMTg1LjkzNzUsNjYwLDE4OS45Mzc1LDY3MCwxOTMuOTM3NSw2NjYsMTg5LjkzNzUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjY0OCIgeDI9IjY0OCIgeTE9IjgzLjk2ODgiIHkyPSIxMDMuOTY4OCIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iNjQ0LDkzLjk2ODgsNjQ4LDEwMy45Njg4LDY1Miw5My45Njg4LDY0OCw5Ny45Njg4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSIyNDguNSIgeDI9IjI0OC41IiB5MT0iMjQ1LjkzNzUiIHkyPSIyNzguNzQyMiIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMjQ0LjUsMjY4Ljc0MjIsMjQ4LjUsMjc4Ljc0MjIsMjUyLjUsMjY4Ljc0MjIsMjQ4LjUsMjcyLjc0MjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjI0OC41IiB4Mj0iMjQ4LjUiIHkxPSIzMTIuNzEwOSIgeTI9IjMzMi43MTA5Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyNDQuNSwzMjIuNzEwOSwyNDguNSwzMzIuNzEwOSwyNTIuNSwzMjIuNzEwOSwyNDguNSwzMjYuNzEwOSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iODAyLjUiIHgyPSI4MDIuNSIgeTE9IjI0NS45Mzc1IiB5Mj0iMjc4Ljc0MjIiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9Ijc5OC41LDI2OC43NDIyLDgwMi41LDI3OC43NDIyLDgwNi41LDI2OC43NDIyLDgwMi41LDI3Mi43NDIyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI4MDIuNSIgeDI9IjgwMi41IiB5MT0iMzEyLjcxMDkiIHkyPSIzMzIuNzEwOSIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iNzk4LjUsMzIyLjcxMDksODAyLjUsMzMyLjcxMDksODA2LjUsMzIyLjcxMDksODAyLjUsMzI2LjcxMDkiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjQ3NyIgeDI9IjQ5NyIgeTE9IjIzMy45Mzc1IiB5Mj0iMjMzLjkzNzUiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjQ4NywyMjkuOTM3NSw0OTcsMjMzLjkzNzUsNDg3LDIzNy45Mzc1LDQ5MSwyMzMuOTM3NSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iNjQ4IiB4Mj0iNjQ4IiB5MT0iMjAxLjkzNzUiIHkyPSIyMDYuOTM3NSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjY0OCIgeDI9IjI0OC41IiB5MT0iMjA2LjkzNzUiIHkyPSIyMDYuOTM3NSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjI0OC41IiB4Mj0iMjQ4LjUiIHkxPSIyMDYuOTM3NSIgeTI9IjIyMS45Mzc1Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyNDQuNSwyMTEuOTM3NSwyNDguNSwyMjEuOTM3NSwyNTIuNSwyMTEuOTM3NSwyNDguNSwyMTUuOTM3NSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iMTEwOCIgeDI9IjEyMDIiIHkxPSIyMzMuOTM3NSIgeTI9IjIzMy45Mzc1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iMTIwMiIgeDI9IjEyMDIiIHkxPSIyMzMuOTM3NSIgeTI9IjI3NS4zMzk4Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIxMTk4LDI2NS4zMzk4LDEyMDIsMjc1LjMzOTgsMTIwNiwyNjUuMzM5OCwxMjAyLDI2OS4zMzk4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSIxMjAyIiB4Mj0iMTIwMiIgeTE9IjMwOS4zMDg2IiB5Mj0iMzMyLjcxMDkiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjExOTgsMzIyLjcxMDksMTIwMiwzMzIuNzEwOSwxMjA2LDMyMi43MTA5LDEyMDIsMzI2LjcxMDkiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjI0OC41IiB4Mj0iMTIwMiIgeTE9IjMzMi43MTA5IiB5Mj0iMzMyLjcxMDkiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI2NDgiIHgyPSI2NDgiIHkxPSIzMzIuNzEwOSIgeTI9IjM1Mi43MTA5Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI2NDQsMzQyLjcxMDksNjQ4LDM1Mi43MTA5LDY1MiwzNDIuNzEwOSw2NDgsMzQ2LjcxMDkiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjwhLS1TUkM9W2JQNG5KbUNuMzhOdC1uS1V4dUFlSDRPT2M1Y1dHX1RKbzNjekc4WWhzMU5ZdC1ES2tMUWcyZkdiYVh0eGxWU2JCQXY4VC16VHlsbGExODY1VGgyWmMwTDJlR3ltZmRSNkFSQXV4NzZpcFA1VXR6MkJDVDJsTnZ3VUR4VHRtcUNOMF9JUjZHajJQOTJ2QVFNT2pQNmhiWWZJRURwdUdpb1ZCaHFfM2hORXE3eVgzbnQwQnBiRVFpdEpoZ2VoOWpQRWZaLXNCcjhTT3ZuMHhDZk1xSnA1aTAzMWlXSXU5SDFJaEdRalF1aEFDbk4xZVkwazctWC1jaFY2ZEVGTVlIZ0NtR2FxclNQcWZOa1lsQnRJNzZ3cTJnd3F0bmpiQmdaWHFfSWxOQ2pSTm5Zbm95bGYtR3EwXS0tPjwvZz48L3N2Zz4=" class="uml" alt="uml diagram" title=""></p>
-<h4 id="pass-judge-logic">Pass judge logic<a class="headerlink" href="#pass-judge-logic" title="Permanent link">#</a></h4>
-<p>At first, this module determines whether the pedestrians or bicycles are likely to cross the crosswalk based on the color of the pedestrian traffic light signal related to the crosswalk. Only when the pedestrian traffic signal is <strong>RED</strong>, this module judges that the objects will not cross the crosswalk and skip the pass judge logic.</p>
-<p>Secondly, this module makes a decision as to whether ego should stop in front of the crosswalk or pass through based on the relative relationship between TTC(Time-To-Collision) and TTV(Time-To-Vehicle). The TTC is the time it takes for ego to reach the virtual collision point, and the TTV is the time it takes for the object to reach the virtual collision point.</p>
+<h4 id="stop-position">Stop Position<a class="headerlink" href="#stop-position" title="Permanent link">#</a></h4>
+<p>First of all, <code>stop_distance_from_object [m]</code> is always kept at least between the ego and the target object for safety.</p>
+<p>When the stop line exists in the lanelet map, the stop position is calculated based on the line.
+When the stop line does <strong>NOT</strong> exist in the lanelet map, the stop position is calculated by keeping <code>stop_distance_from_crosswalk [m]</code> between the ego and the crosswalk.</p>
+<div align="center">
+    <table>
+        <tr>
+            <td><img src="./docs/explicit_stop_line.svg" width="600"></td>
+            <td><img src="./docs/virtual_stop_line.svg" width="600"></td>
+        </tr>
+    </table>
+</div>
+
+<p>As an exceptional case, if a pedestrian (or bicycle) is crossing <strong>wide</strong> crosswalks seen in scramble intersections, and the pedestrian position is more than <code>far_object_threshold</code> meters away from the stop line, the actual stop position is determined by <code>stop_distance_from_object</code> and pedestrian position, not at the stop line.</p>
 <figure>
-<p><img alt="virtual_collision_point" src="docs/virtual_collision_point.svg" width="1000">
-  </p>
-<figcaption>virtual collision point</figcaption>
+<p><img alt="far_object_threshold" src="docs/far_object_threshold.drawio.svg" width="700"></p>
 </figure>
-<p>Depending on the relative relationship between TTC and TTV, the ego's behavior at crosswalks can be classified into three categories.</p>
-<ol>
-<li><strong>TTC &gt;&gt; TTV</strong>: The objects have enough time to cross first before ego reaches the crosswalk. (Type-A)</li>
-<li><strong>TTC ≒ TTV</strong>: There is a risk of a near miss and collision between ego and objects at the virtual collision point. (Type-B)</li>
-<li><strong>TTC &lt;&lt; TTV</strong>: Ego has enough time to path through the crosswalk before the objects reach the virtual collision point. (Type-C)</li>
-</ol>
-<p>This module judges that ego is able to pass through the crosswalk without collision risk when the relative relationship between TTC and TTV is <strong>Type-A</strong> and <strong>Type-C</strong>. On the other hand, this module judges that ego needs to stop in front of the crosswalk prevent collision with objects in <strong>Type-B</strong> condition. The time margin can be set by parameters <code>ego_pass_first_margin</code> and <code>ego_pass_later_margin</code>. This logic is designed based on [1].</p>
-<figure>
-<p><img alt="ttc-ttv" src="docs/ttc-ttv.svg" width="1000">
-  </p>
-<figcaption>time-to-collision vs time-to-vehicle</figcaption>
-</figure>
-<p>This module uses the larger value of estimated object velocity and <code>min_object_velocity</code> in calculating TTV in order to avoid division by zero.</p>
-<p><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXMtYXNjaWkiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgaGVpZ2h0PSI0MzdweCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgc3R5bGU9IndpZHRoOjY0N3B4O2hlaWdodDo0MzdweDtiYWNrZ3JvdW5kOiNGRkZGRkY7IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA2NDcgNDM3IiB3aWR0aD0iNjQ3cHgiIHpvb21BbmRQYW49Im1hZ25pZnkiPjxkZWZzLz48Zz48ZWxsaXBzZSBjeD0iMzAwLjUiIGN5PSIyMCIgZmlsbD0iIzIyMjIyMiIgcng9IjEwIiByeT0iMTAiIHN0eWxlPSJzdHJva2U6IzIyMjIyMjtzdHJva2Utd2lkdGg6MS4wOyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzMuOTY4OCIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxMzgiIHg9IjIzMS41IiB5PSIxNDYuODA0NyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjExOCIgeD0iMjQxLjUiIHk9IjE2Ny45NDM0Ij5jYWxjdWxhdGUgVFRDICZhbXA7IFRUVjwvdGV4dD48cG9seWdvbiBmaWxsPSIjRjFGMUYxIiBwb2ludHM9IjU4LjUsMjAwLjc3MzQsNTQyLjUsMjAwLjc3MzQsNTU0LjUsMjEyLjc3MzQsNTQyLjUsMjI0Ljc3MzQsNTguNSwyMjQuNzczNCw0Ni41LDIxMi43NzM0LDU4LjUsMjAwLjc3MzQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9Ijc0IiB4PSI1OC41IiB5PSIyMTYuNTgxNSI+VFRDICZsdDsgVFRWICs8L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtd2VpZ2h0PSJib2xkIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjE1MCIgeD0iMTM2LjUiIHk9IjIxNi41ODE1Ij5lZ29fcGFzc19maXJzdF9tYXJnaW48L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iOTYiIHg9IjI5MC41IiB5PSIyMTYuNTgxNSI+JmFtcDsmYW1wOyBUVFYgJmx0OyBUVEMgKzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgZm9udC13ZWlnaHQ9ImJvbGQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTUyIiB4PSIzOTAuNSIgeT0iMjE2LjU4MTUiPmVnb19wYXNzX2xhdGVyX21hcmdpbjwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIyMSIgeD0iMjUuNSIgeT0iMjEwLjE3OTIiPnllczwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxNCIgeD0iNTU0LjUiIHk9IjIxMC4xNzkyIj5ubzwvdGV4dD48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjMzLjk2ODgiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNTEiIHg9IjExIiB5PSIyMzQuNzczNCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjMxIiB4PSIyMSIgeT0iMjU1LjkxMjEiPlNUT1A8L3RleHQ+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzMy45Njg4IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjUwIiB4PSI1MzkuNSIgeT0iMjM0Ljc3MzQiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzMCIgeD0iNTQ5LjUiIHk9IjI1NS45MTIxIj5QQVNTPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iMzAwLjUsMjc0Ljc0MjIsMzEyLjUsMjg2Ljc0MjIsMzAwLjUsMjk4Ljc0MjIsMjg4LjUsMjg2Ljc0MjIsMzAwLjUsMjc0Ljc0MjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iMTg0LjUsOTguNDAyMyw0MTYuNSw5OC40MDIzLDQyOC41LDExMC40MDIzLDQxNi41LDEyMi40MDIzLDE4NC41LDEyMi40MDIzLDE3Mi41LDExMC40MDIzLDE4NC41LDk4LjQwMjMiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjIxIiB4PSIzMDQuNSIgeT0iMTMyLjYxMjgiPnllczwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIyMzIiIHg9IjE4NC41IiB5PSIxMTQuMjEwNCI+VGhlcmUgYXJlIG9iamVjdHMgYXJvdW5kIHRoZSBjcm9zc3dhbGs/PC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iMzAwLjUsMzE4Ljc0MjIsMzEyLjUsMzMwLjc0MjIsMzAwLjUsMzQyLjc0MjIsMjg4LjUsMzMwLjc0MjIsMzAwLjUsMzE4Ljc0MjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iMTkyLDUwLDQwOSw1MCw0MjEsNjIsNDA5LDc0LDE5Miw3NCwxODAsNjIsMTkyLDUwIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxNCIgeD0iMzA0LjUiIHk9Ijg0LjIxMDQiPm5vPC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjE4MyIgeD0iMTkyIiB5PSI2NS44MDgxIj5QZWRlc3RyaWFuJ3MgdHJhZmZpYyBsaWdodCBzaWduYWwgaXM8L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtd2VpZ2h0PSJib2xkIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjI0IiB4PSIzNzkiIHk9IjY1LjgwODEiPlJFRDwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI2IiB4PSI0MDMiIHk9IjY1LjgwODEiPj88L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMjEiIHg9IjQyMSIgeT0iNTkuNDA1OCI+eWVzPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iMzAwLjUsMzYyLjc0MjIsMzEyLjUsMzc0Ljc0MjIsMzAwLjUsMzg2Ljc0MjIsMjg4LjUsMzc0Ljc0MjIsMzAwLjUsMzYyLjc0MjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjxlbGxpcHNlIGN4PSIzMDAuNSIgY3k9IjQxNi43NDIyIiBmaWxsPSJub25lIiByeD0iMTAiIHJ5PSIxMCIgc3R5bGU9InN0cm9rZTojMjIyMjIyO3N0cm9rZS13aWR0aDoxLjU7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMjIyMjIyO3N0cm9rZS13aWR0aDoyLjU7IiB4MT0iMjk0LjMxMjgiIHgyPSIzMDYuNjg3MiIgeTE9IjQxMC41NTUiIHkyPSI0MjIuOTI5NCIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzIyMjIyMjtzdHJva2Utd2lkdGg6Mi41OyIgeDE9IjMwNi42ODcyIiB4Mj0iMjk0LjMxMjgiIHkxPSI0MTAuNTU1IiB5Mj0iNDIyLjkyOTQiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI0Ni41IiB4Mj0iMzYuNSIgeTE9IjIxMi43NzM0IiB5Mj0iMjEyLjc3MzQiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSIzNi41IiB4Mj0iMzYuNSIgeTE9IjIxMi43NzM0IiB5Mj0iMjM0Ljc3MzQiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjMyLjUsMjI0Ljc3MzQsMzYuNSwyMzQuNzczNCw0MC41LDIyNC43NzM0LDM2LjUsMjI4Ljc3MzQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjU1NC41IiB4Mj0iNTY0LjUiIHkxPSIyMTIuNzczNCIgeTI9IjIxMi43NzM0Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iNTY0LjUiIHgyPSI1NjQuNSIgeTE9IjIxMi43NzM0IiB5Mj0iMjM0Ljc3MzQiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjU2MC41LDIyNC43NzM0LDU2NC41LDIzNC43NzM0LDU2OC41LDIyNC43NzM0LDU2NC41LDIyOC43NzM0IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSIzNi41IiB4Mj0iMzYuNSIgeTE9IjI2OC43NDIyIiB5Mj0iMjg2Ljc0MjIiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSIzNi41IiB4Mj0iMjg4LjUiIHkxPSIyODYuNzQyMiIgeTI9IjI4Ni43NDIyIi8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyNzguNSwyODIuNzQyMiwyODguNSwyODYuNzQyMiwyNzguNSwyOTAuNzQyMiwyODIuNSwyODYuNzQyMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iNTY0LjUiIHgyPSI1NjQuNSIgeTE9IjI2OC43NDIyIiB5Mj0iMjg2Ljc0MjIiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI1NjQuNSIgeDI9IjMxMi41IiB5MT0iMjg2Ljc0MjIiIHkyPSIyODYuNzQyMiIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMzIyLjUsMjgyLjc0MjIsMzEyLjUsMjg2Ljc0MjIsMzIyLjUsMjkwLjc0MjIsMzE4LjUsMjg2Ljc0MjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjMwMC41IiB4Mj0iMzAwLjUiIHkxPSIxODAuNzczNCIgeTI9IjIwMC43NzM0Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyOTYuNSwxOTAuNzczNCwzMDAuNSwyMDAuNzczNCwzMDQuNSwxOTAuNzczNCwzMDAuNSwxOTQuNzczNCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iMzAwLjUiIHgyPSIzMDAuNSIgeTE9IjEyMi40MDIzIiB5Mj0iMTQ2LjgwNDciLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjI5Ni41LDEzNi44MDQ3LDMwMC41LDE0Ni44MDQ3LDMwNC41LDEzNi44MDQ3LDMwMC41LDE0MC44MDQ3IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSI0MjguNSIgeDI9IjYwMy41IiB5MT0iMTEwLjQwMjMiIHkyPSIxMTAuNDAyMyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iNTk5LjUsMjA1LjI3MzQsNjAzLjUsMjE1LjI3MzQsNjA3LjUsMjA1LjI3MzQsNjAzLjUsMjA5LjI3MzQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjYwMy41IiB4Mj0iNjAzLjUiIHkxPSIxMTAuNDAyMyIgeTI9IjMzMC43NDIyIi8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iNjAzLjUiIHgyPSIzMTIuNSIgeTE9IjMzMC43NDIyIiB5Mj0iMzMwLjc0MjIiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjMyMi41LDMyNi43NDIyLDMxMi41LDMzMC43NDIyLDMyMi41LDMzNC43NDIyLDMxOC41LDMzMC43NDIyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSIzMDAuNSIgeDI9IjMwMC41IiB5MT0iMjk4Ljc0MjIiIHkyPSIzMTguNzQyMiIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMjk2LjUsMzA4Ljc0MjIsMzAwLjUsMzE4Ljc0MjIsMzA0LjUsMzA4Ljc0MjIsMzAwLjUsMzEyLjc0MjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjMwMC41IiB4Mj0iMzAwLjUiIHkxPSI3NCIgeTI9Ijk4LjQwMjMiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjI5Ni41LDg4LjQwMjMsMzAwLjUsOTguNDAyMywzMDQuNSw4OC40MDIzLDMwMC41LDkyLjQwMjMiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjQyMSIgeDI9IjYyMS41IiB5MT0iNjIiIHkyPSI2MiIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iNjE3LjUsMjA1LjI3MzQsNjIxLjUsMjE1LjI3MzQsNjI1LjUsMjA1LjI3MzQsNjIxLjUsMjA5LjI3MzQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjYyMS41IiB4Mj0iNjIxLjUiIHkxPSI2MiIgeTI9IjM3NC43NDIyIi8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iNjIxLjUiIHgyPSIzMTIuNSIgeTE9IjM3NC43NDIyIiB5Mj0iMzc0Ljc0MjIiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjMyMi41LDM3MC43NDIyLDMxMi41LDM3NC43NDIyLDMyMi41LDM3OC43NDIyLDMxOC41LDM3NC43NDIyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiIHgxPSIzMDAuNSIgeDI9IjMwMC41IiB5MT0iMzQyLjc0MjIiIHkyPSIzNjIuNzQyMiIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMjk2LjUsMzUyLjc0MjIsMzAwLjUsMzYyLjc0MjIsMzA0LjUsMzUyLjc0MjIsMzAwLjUsMzU2Ljc0MjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIgeDE9IjMwMC41IiB4Mj0iMzAwLjUiIHkxPSIzMCIgeTI9IjUwIi8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyOTYuNSw0MCwzMDAuNSw1MCwzMDQuNSw0MCwzMDAuNSw0NCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7IiB4MT0iMzAwLjUiIHgyPSIzMDAuNSIgeTE9IjM4Ni43NDIyIiB5Mj0iNDA2Ljc0MjIiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjI5Ni41LDM5Ni43NDIyLDMwMC41LDQwNi43NDIyLDMwNC41LDM5Ni43NDIyLDMwMC41LDQwMC43NDIyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48IS0tU1JDPVtQS19ESWlHbTRCeHRBUnhKc2lPdEs0NWF6TW9ubk1pUHFxYXhRcW1hYXFMeVV6RWVZdWsxcDBwcF9JTVFBVUw2N0RnVVB6UVNYQ0E1OFlUb0pZb3lCNms2b1hCOEduSjZGM3RTNnRGUjhReVNxN3dvVFdyeFBSR1hUV3NtRU9xaDltUUw2cnlFUkJFTUVIeDNsNmJXS3JKejhGend4ZTVvaFludlVfSUs2VUV1bnd4S3Yta0FMRFVva2piTWsycEZ1MkxFeHdHd0VLY1FmcFRBWW1IWmlBa2dJam9WNHBWVlQyQi0yb19ubV9aT1YtVnpfTDY1LWhqWC04NzJCQXh2eFFWdzFHMDBdLS0+PC9nPjwvc3ZnPg==" class="uml" alt="uml diagram" title=""></p>
-<h4 id="dead-lock-prevention">Dead lock prevention<a class="headerlink" href="#dead-lock-prevention" title="Permanent link">#</a></h4>
-<p>If there are objects stop within a radius of <code>min_object_velocity * ego_pass_later_margin</code> meters from virtual collision point, this module judges that ego should stop based on the pass judge logic described above at all times. In such a situation, even if the pedestrian has no intention of crossing, ego continues the stop decision on the spot. So, this module has another logic for dead lock prevention, and if the object continues to stop for more than <code>timeout_no_intention_to_walk</code> seconds after ego stops in front of the crosswalk, this module judges that the object has no intention of crossing and switches from <strong>STOP</strong> state to <strong>PASS</strong> state. The parameter <code>stop_object_velocity_threshold</code> is used to judge whether the objects are stopped or not. In addition, if the object starts to move after the module judges that the object has no intention of crossing, this module judges whether ego should stop or not once again.</p>
-<figure>
-<p><img alt="no-intension" src="docs/no-intension.svg" width="1000">
-  </p>
-<figcaption>dead lock situation</figcaption>
-</figure>
-<h4 id="safety-slow-down-behavior">Safety Slow Down Behavior<a class="headerlink" href="#safety-slow-down-behavior" title="Permanent link">#</a></h4>
-<p>In current autoware implementation if there are no target objects around a crosswalk, ego vehicle
-will not slow down for the crosswalk. However, if ego vehicle to slow down to a certain speed in
-such cases is wanted then it is possible by adding some tags to the related crosswalk definition as
-it is instructed
-in <a href="https://github.com/autowarefoundation/autoware_common/blob/main/tmp/lanelet2_extension/docs/lanelet2_format_extension.md">lanelet2_format_extension.md</a>
+<p>In the <code>stop_position</code> namespace, the following parameters are defined.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stop_position_threshold</code></td>
+<td>[m]</td>
+<td>double</td>
+<td>If the ego vehicle has stopped near the stop line than this value, this module assumes itself to have achieved yielding.</td>
+</tr>
+<tr>
+<td><code>stop_distance_from_crosswalk</code></td>
+<td>[m]</td>
+<td>double</td>
+<td>make stop line away from crosswalk for the Lanelet2 map with no explicit stop lines</td>
+</tr>
+<tr>
+<td><code>far_object_threshold</code></td>
+<td>[m]</td>
+<td>double</td>
+<td>If objects cross X meters behind the stop line, the stop position is determined according to the object position (stop_distance_from_object meters before the object) for the case where the crosswalk width is very wide</td>
+</tr>
+<tr>
+<td><code>stop_distance_from_object</code></td>
+<td>[m]</td>
+<td>double</td>
+<td>the vehicle decelerates to be able to stop in front of object with margin</td>
+</tr>
+</tbody>
+</table>
+<h4 id="yield-decision">Yield decision<a class="headerlink" href="#yield-decision" title="Permanent link">#</a></h4>
+<p>The module makes a decision to yield only when the pedestrian traffic light is <strong>GREEN</strong> or <strong>UNKNOWN</strong>.
+The decision is based on the following variables, along with the calculation of the collision point.</p>
+<ul>
+<li>Time-To-Collision (TTC): The time for the <strong>ego</strong> to reach the virtual collision point.</li>
+<li>Time-To-Vehicle (TTV): The time for the <strong>object</strong> to reach the virtual collision point.</li>
+</ul>
+<p>We classify ego behavior at crosswalks into three categories according to the relative relationship between TTC and TTV [1].</p>
+<ul>
+<li>A. <strong>TTC &gt;&gt; TTV</strong>: The object has enough time to cross before the ego.<ul>
+<li>No stop planning.</li>
+</ul>
+</li>
+<li>B. <strong>TTC ≒ TTV</strong>: There is a risk of collision.<ul>
+<li><strong>Stop point is inserted in the ego's path</strong>.</li>
+</ul>
+</li>
+<li>C. <strong>TTC &lt;&lt; TTV</strong>: Ego has enough time to cross before the object.<ul>
+<li>No stop planning.</li>
+</ul>
+</li>
+</ul>
+<div align="center">
+    <table>
+        <tr>
+            <td><img src="./docs/virtual_collision_point.svg" width="600"></td>
+            <td><img src="./docs/ttc_vs_ttv.drawio.svg" width="350"></td>
+        </tr>
+    </table>
+</div>
+
+<p>The boundary of A and B is interpolated from <code>ego_pass_later_margin_x</code> and <code>ego_pass_later_margin_y</code>.
+In the case of the upper figure, <code>ego_pass_later_margin_x</code> is <code>{0, 1, 2}</code> and <code>ego_pass_later_margin_y</code> is <code>{1, 4, 6}</code>.
+In the same way, the boundary of B and C is calculated from <code>ego_pass_first_margin_x</code> and <code>ego_pass_first_margin_y</code>.
+In the case of the upper figure, <code>ego_pass_first_margin_x</code> is <code>{3, 5}</code> and <code>ego_pass_first_margin_y</code> is <code>{0, 1}</code>.</p>
+<p>In the <code>pass_judge</code> namespace, the following parameters are defined.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ego_pass_first_margin_x</code></td>
+<td>[[s]]</td>
+<td>double</td>
+<td>time to collision margin vector for ego pass first situation (the module judges that ego don't have to stop at TTC + MARGIN &lt; TTV condition)</td>
+</tr>
+<tr>
+<td><code>ego_pass_first_margin_y</code></td>
+<td>[[s]]</td>
+<td>double</td>
+<td>time to vehicle margin vector for ego pass first situation (the module judges that ego don't have to stop at TTC + MARGIN &lt; TTV condition)</td>
+</tr>
+<tr>
+<td><code>ego_pass_first_additional_margin</code></td>
+<td>[s]</td>
+<td>double</td>
+<td>additional time margin for ego pass first situation to suppress chattering</td>
+</tr>
+<tr>
+<td><code>ego_pass_later_margin_x</code></td>
+<td>[[s]]</td>
+<td>double</td>
+<td>time to vehicle margin vector for object pass first situation (the module judges that ego don't have to stop at TTV + MARGIN &lt; TTC condition)</td>
+</tr>
+<tr>
+<td><code>ego_pass_later_margin_y</code></td>
+<td>[[s]]</td>
+<td>double</td>
+<td>time to collision margin vector for object pass first situation (the module judges that ego don't have to stop at TTV + MARGIN &lt; TTC condition)</td>
+</tr>
+<tr>
+<td><code>ego_pass_later_additional_margin</code></td>
+<td>[s]</td>
+<td>double</td>
+<td>additional time margin for object pass first situation to suppress chattering</td>
+</tr>
+</tbody>
+</table>
+<h3 id="smooth-yield-decision">Smooth Yield Decision<a class="headerlink" href="#smooth-yield-decision" title="Permanent link">#</a></h3>
+<p>If the object is stopped near the crosswalk but has no intention of walking, a situation can arise in which the ego continues to yield the right-of-way to the object.
+To prevent such a deadlock situation, the ego will cancel yielding depending on the situation.</p>
+<h4 id="cases-without-traffic-lights">Cases without traffic lights<a class="headerlink" href="#cases-without-traffic-lights" title="Permanent link">#</a></h4>
+<p>For the object stopped around the crosswalk but has no intention to walk (*1), after the ego has keep stopping to yield for a specific time (*2), the ego cancels the yield and starts driving.</p>
+<p>*1:
+The time is calculated by the interpolation of distance between the object and crosswalk with <code>distance_map_for_no_intention_to_walk</code> and <code>timeout_map_for_no_intention_to_walk</code>.</p>
+<p>In the <code>pass_judge</code> namespace, the following parameters are defined.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>distance_map_for_no_intention_to_walk</code></td>
+<td>[[m]]</td>
+<td>double</td>
+<td>distance map to calculate the timeout for no intention to walk with interpolation</td>
+</tr>
+<tr>
+<td><code>timeout_map_for_no_intention_to_walk</code></td>
+<td>[[s]]</td>
+<td>double</td>
+<td>timeout map to calculate the timeout for no intention to walk with interpolation</td>
+</tr>
+</tbody>
+</table>
+<p>*2:
+In the <code>pass_judge</code> namespace, the following parameters are defined.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timeout_ego_stop_for_yield</code></td>
+<td>[s]</td>
+<td>double</td>
+<td>If the ego maintains the stop for this amount of time, then the ego proceeds, assuming it has stopped long time enough.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="cases-with-traffic-lights">Cases with traffic lights<a class="headerlink" href="#cases-with-traffic-lights" title="Permanent link">#</a></h4>
+<p>The ego will cancel the yield without stopping when the object stops around the crosswalk but has no intention to walk (*1).
+This comes from the assumption that the object has no intention to walk since it is stopped even though the pedestrian traffic light is green.</p>
+<p>*1:
+The crosswalk user's intention to walk is calculated in the same way as <code>Cases without traffic lights</code>.</p>
+<div align="center">
+    <table>
+        <tr>
+            <td><img src="./docs/without_traffic_light.svg" width="600"></td>
+            <td><img src="./docs/with_traffic_light.svg" width="600"></td>
+        </tr>
+    </table>
+</div>
+
+<h4 id="new-object-handling">New Object Handling<a class="headerlink" href="#new-object-handling" title="Permanent link">#</a></h4>
+<p>Due to the perception's limited performance where the tree or poll is recognized as a pedestrian or the tracking failure in the crowd or occlusion, even if the surrounding environment does not change, the new pedestrian (= the new ID's pedestrian) may suddenly appear unexpectedly.
+If this happens while the ego is going to pass the crosswalk, the ego will stop suddenly.</p>
+<p>To deal with this issue, the option <code>disable_yield_for_new_stopped_object</code> is prepared.
+If true is set, the yield decisions around the crosswalk with a traffic light will ignore the new stopped object.</p>
+<p>In the <code>pass_judge</code> namespace, the following parameters are defined.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>disable_yield_for_new_stopped_object</code></td>
+<td>[-]</td>
+<td>bool</td>
+<td>If set to true, the new stopped object will be ignored around the crosswalk with a traffic light</td>
+</tr>
+</tbody>
+</table>
+<h3 id="safety-slow-down-behavior">Safety Slow Down Behavior<a class="headerlink" href="#safety-slow-down-behavior" title="Permanent link">#</a></h3>
+<p>In the current autoware implementation, if no target object is detected around a crosswalk, the ego vehicle will not slow down for the crosswalk.
+However, it may be desirable to slow down in situations, for example, where there are blind spots.
+Such a situation can be handled by setting some tags to the related crosswalk as instructed in the <a href="https://github.com/autowarefoundation/autoware_common/blob/main/tmp/lanelet2_extension/docs/lanelet2_format_extension.md">lanelet2_format_extension.md</a>
 document.</p>
-<h3 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">#</a></h3>
-<p>When multiple crosswalks are nearby (such as intersection), this module may make a stop decision even at crosswalks where the object has no intention of crossing.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th></th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>slow_velocity</code></td>
+<td>[m/s]</td>
+<td>double</td>
+<td>target vehicle velocity when module receive slow down command from FOA</td>
+</tr>
+<tr>
+<td><code>max_slow_down_jerk</code></td>
+<td>[m/sss]</td>
+<td>double</td>
+<td>minimum jerk deceleration for safe brake</td>
+</tr>
+<tr>
+<td><code>max_slow_down_accel</code></td>
+<td>[m/ss]</td>
+<td>double</td>
+<td>minimum accel deceleration for safe brake</td>
+</tr>
+<tr>
+<td><code>no_relax_velocity</code></td>
+<td>[m/s]</td>
+<td>double</td>
+<td>if the current velocity is less than X m/s, ego always stops at the stop position(not relax deceleration constraints)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stuck-vehicle-detection">Stuck Vehicle Detection<a class="headerlink" href="#stuck-vehicle-detection" title="Permanent link">#</a></h3>
+<p>The feature will make the ego not to stop on the crosswalk.
+When there is a low-speed or stopped vehicle ahead of the crosswalk, and there is not enough space between the crosswalk and the vehicle, the crosswalk module plans to stop before the crosswalk even if there are no pedestrians or bicycles.</p>
+<p><code>min_acc</code>, <code>min_jerk</code>, and <code>max_jerk</code> are met. If the ego cannot stop before the crosswalk with these parameters, the stop position will move forward.</p>
 <figure>
-<p><img alt="limitation" src="docs/limitation.svg" width="1000">
-  </p>
-<figcaption>design limits</figcaption>
+<p><img alt="stuck_vehicle_attention_range" src="docs/stuck_vehicle_detection.svg" width="600"></p>
 </figure>
-<h3 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">#</a></h3>
-<h3 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">#</a></h3>
-<p>By <code>ros2 run behavior_velocity_crosswalk_module time_to_collision_plotter.py</code>, you can visualize the following figure of the ego and pedestrian's time to collision.
+<p>In the <code>stuck_vehicle</code> namespace, the following parameters are defined.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Unit</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stuck_vehicle_velocity</code></td>
+<td>[m/s]</td>
+<td>double</td>
+<td>maximum velocity threshold whether the target vehicle is stopped or not</td>
+</tr>
+<tr>
+<td><code>max_stuck_vehicle_lateral_offset</code></td>
+<td>[m]</td>
+<td>double</td>
+<td>maximum lateral offset of the target vehicle position</td>
+</tr>
+<tr>
+<td><code>stuck_vehicle_attention_range</code></td>
+<td>[m]</td>
+<td>double</td>
+<td>detection area length ahead of the crosswalk</td>
+</tr>
+<tr>
+<td><code>min_acc</code></td>
+<td>[m/ss]</td>
+<td>double</td>
+<td>minimum acceleration to stop</td>
+</tr>
+<tr>
+<td><code>min_jerk</code></td>
+<td>[m/sss]</td>
+<td>double</td>
+<td>minimum jerk to stop</td>
+</tr>
+<tr>
+<td><code>max_jerk</code></td>
+<td>[m/sss]</td>
+<td>double</td>
+<td>maximum jerk to stop</td>
+</tr>
+</tbody>
+</table>
+<h3 id="others">Others<a class="headerlink" href="#others" title="Permanent link">#</a></h3>
+<p>In the <code>common</code> namespace, the following parameters are defined.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Unit</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>show_processing_time</code></td>
+<td>[-]</td>
+<td>bool</td>
+<td>whether to show processing time</td>
+</tr>
+<tr>
+<td><code>traffic_light_state_timeout</code></td>
+<td>[s]</td>
+<td>double</td>
+<td>timeout threshold for traffic light signal</td>
+</tr>
+<tr>
+<td><code>enable_rtc</code></td>
+<td>[-]</td>
+<td>bool</td>
+<td>if true, the scene modules should be approved by (request to cooperate)rtc function. if false, the module can be run without approval from rtc.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">#</a></h2>
+<ul>
+<li>The yield decision may be sometimes aggressive or conservative depending on the case.<ul>
+<li>The main reason is that the crosswalk module does not know the ego's position in the future. The detailed ego's position will be determined after the whole planning.</li>
+<li>Currently the module assumes that the ego will move with a constant velocity.</li>
+</ul>
+</li>
+</ul>
+<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">#</a></h2>
+<h3 id="visualization-of-debug-markers">Visualization of debug markers<a class="headerlink" href="#visualization-of-debug-markers" title="Permanent link">#</a></h3>
+<p><code>/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/debug/crosswalk</code> shows the following markers.</p>
+<figure>
+<p><img alt="limitation" src="docs/debug_markers.png" width="1000"></p>
+</figure>
+<ul>
+<li>Yellow polygons<ul>
+<li>Ego footprints' polygon to calculate the collision check.</li>
+</ul>
+</li>
+<li>Pink polygons<ul>
+<li>Object footprints' polygon to calculate the collision check.</li>
+</ul>
+</li>
+<li>The color of crosswalks<ul>
+<li>Considering the traffic light's color, red means the target crosswalk, and white means the ignored crosswalk.</li>
+</ul>
+</li>
+<li>Texts<ul>
+<li>It shows the module ID, TTC, TTV, and the module state.</li>
+</ul>
+</li>
+</ul>
+<h3 id="visualization-of-time-to-collision">Visualization of Time-To-Collision<a class="headerlink" href="#visualization-of-time-to-collision" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code>ros2<span class="w"> </span>run<span class="w"> </span>behavior_velocity_crosswalk_module<span class="w"> </span>time_to_collision_plotter.py
+</code></pre></div>
+<p>enables you to visualize the following figure of the ego and pedestrian's time to collision.
 The label of each plot is <code>&lt;crosswalk module id&gt;-&lt;pedestrian uuid&gt;</code>.</p>
 <figure>
-<p><img alt="limitation" src="docs/time_to_collision_plot.png" width="1000">
-  </p>
-<figcaption>Plot of time to collision</figcaption>
+<p><img alt="limitation" src="docs/time_to_collision_plot.png" width="1000"></p>
 </figure>
-<h3 id="referencesexternal-links">References/External links<a class="headerlink" href="#referencesexternal-links" title="Permanent link">#</a></h3>
+<h2 id="trouble-shooting">Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Permanent link">#</a></h2>
+<h3 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">#</a></h3>
+<ul>
+<li>Q. The ego stopped around the crosswalk even though there were no crosswalk user objects.<ul>
+<li>A. See <a href="https://autowarefoundation.github.io/autoware.universe/pr-5583/planning/behavior_velocity_crosswalk_module/#stuck-vehicle-detection">Stuck Vehicle Detection</a>.</li>
+</ul>
+</li>
+<li>Q. The crosswalk virtual wall suddenly appeared resulting in the sudden stop.<ul>
+<li>A. There may be a crosswalk user started moving when the ego was close to the crosswalk.</li>
+</ul>
+</li>
+<li>Q. The crosswalk module decides to stop even when the pedestrian traffic light is red.<ul>
+<li>A. The lanelet map may be incorrect. The pedestrian traffic light and the crosswalk have to be related.</li>
+</ul>
+</li>
+<li>Q. In the planning simulation, the crosswalk module does the yield decision to stop on all the crosswalks.<ul>
+<li>A. This is because the pedestrian traffic light is unknown by default. In this case, the crosswalk does the yield decision for safety.</li>
+</ul>
+</li>
+</ul>
+<h3 id="parameter-tuning">Parameter Tuning<a class="headerlink" href="#parameter-tuning" title="Permanent link">#</a></h3>
+<ul>
+<li>Q. The ego's yield behavior is too conservative.<ul>
+<li>A. Tune <code>ego_pass_later_margin</code> described in <a href="https://autowarefoundation.github.io/autoware.universe/pr-5583/planning/behavior_velocity_crosswalk_module/#stuck-vehicle-detection">Yield Decision</a></li>
+</ul>
+</li>
+<li>Q. The ego's yield behavior is too aggressive.<ul>
+<li>A. Tune <code>ego_pass_later_margin</code> described in <a href="https://autowarefoundation.github.io/autoware.universe/pr-5583/planning/behavior_velocity_crosswalk_module/#stuck-vehicle-detection">Yield Decision</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="referencesexternal-links">References/External links<a class="headerlink" href="#referencesexternal-links" title="Permanent link">#</a></h2>
 <p>[1] 佐藤 みなみ, 早坂 祥一, 清水 政行, 村野 隆彦, 横断歩行者に対するドライバのリスク回避行動のモデル化, 自動車技術会論文集, 2013, 44 巻, 3 号, p. 931-936.</p></div>
 
 

@@ -14,7 +14,7 @@
         <link rel="prev" href="../behavior_path_avoidance_by_lane_change_module/">
       
       
-        <link rel="next" href="../behavior_path_goal_planner_module/">
+        <link rel="next" href="../behavior_path_dynamic_avoidance_module/">
       
       <link rel="icon" href="../../docs/assets/images/autoware-foundation.png">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.20">
@@ -7746,6 +7746,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_7_13_2" id="__nav_7_13_2_label" tabindex="0">
@@ -7810,6 +7812,20 @@
     <li class="md-nav__item">
       <a href="../../perception/image_projection_based_fusion/docs/roi-pointcloud-fusion/" class="md-nav__link">
         roi_pointcloud_fusion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../perception/image_projection_based_fusion/docs/segmentation-pointcloud-fusion/" class="md-nav__link">
+        segmentation_pointcloud_fusion
       </a>
     </li>
   
@@ -8497,6 +8513,8 @@
         
           
         
+          
+        
       
       
         
@@ -8541,6 +8559,20 @@
     <li class="md-nav__item">
       <a href="../../perception/probabilistic_occupancy_grid_map/pointcloud-based-occupancy-grid-map/" class="md-nav__link">
         pointcloud based occupancy grid map
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../perception/probabilistic_occupancy_grid_map/synchronized_grid_map_fusion/" class="md-nav__link">
+        synchronized OGM fusion
       </a>
     </li>
   
@@ -9885,7 +9917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../behavior_path_planner/docs/behavior_path_planner_dynamic_avoidance_design" class="md-nav__link">
+      <a href="../behavior_path_dynamic_avoidance_module" class="md-nav__link">
         Dynamic Avoidance
       </a>
     </li>
@@ -15402,7 +15434,14 @@ SHIFT_{current} &gt; L_{threshold}
 <td align="left">object_check_goal_distance</td>
 <td align="left">[m]</td>
 <td align="left">double</td>
-<td align="left">Backward distance to search the avoidance target.</td>
+<td align="left">If the distance between object and goal position is less than this parameter, the module do not return center line.</td>
+<td align="left">20.0</td>
+</tr>
+<tr>
+<td align="left">object_check_return_pose_distance</td>
+<td align="left">[m]</td>
+<td align="left">double</td>
+<td align="left">If the distance between object and return position is less than this parameter, the module do not return center line.</td>
 <td align="left">20.0</td>
 </tr>
 <tr>
@@ -15926,13 +15965,13 @@ SHIFT_{current} &gt; L_{threshold}
         
         
           
-          <a href="../behavior_path_goal_planner_module/" class="md-footer__link md-footer__link--next" aria-label="Next: Goal Planner design" rel="next">
+          <a href="../behavior_path_dynamic_avoidance_module/" class="md-footer__link md-footer__link--next" aria-label="Next: Dynamic avoidance design" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Goal Planner design
+                Dynamic avoidance design
               </div>
             </div>
             <div class="md-footer__button md-icon">

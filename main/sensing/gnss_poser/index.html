@@ -7746,6 +7746,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_7_13_2" id="__nav_7_13_2_label" tabindex="0">
@@ -7810,6 +7812,20 @@
     <li class="md-nav__item">
       <a href="../../perception/image_projection_based_fusion/docs/roi-pointcloud-fusion/" class="md-nav__link">
         roi_pointcloud_fusion
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../perception/image_projection_based_fusion/docs/segmentation-pointcloud-fusion/" class="md-nav__link">
+        segmentation_pointcloud_fusion
       </a>
     </li>
   
@@ -8497,6 +8513,8 @@
         
           
         
+          
+        
       
       
         
@@ -8541,6 +8559,20 @@
     <li class="md-nav__item">
       <a href="../../perception/probabilistic_occupancy_grid_map/pointcloud-based-occupancy-grid-map/" class="md-nav__link">
         pointcloud based occupancy grid map
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../perception/probabilistic_occupancy_grid_map/synchronized_grid_map_fusion/" class="md-nav__link">
+        synchronized OGM fusion
       </a>
     </li>
   
@@ -9885,7 +9917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../planning/behavior_path_planner/docs/behavior_path_planner_dynamic_avoidance_design" class="md-nav__link">
+      <a href="../../planning/behavior_path_dynamic_avoidance_module" class="md-nav__link">
         Dynamic Avoidance
       </a>
     </li>
@@ -14623,6 +14655,9 @@
 <div><h1 id="gnss_poser">gnss_poser<a class="headerlink" href="#gnss_poser" title="Permanent link">#</a></h1>
 <h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">#</a></h2>
 <p>The <code>gnss_poser</code> is a node that subscribes gnss sensing messages and calculates vehicle pose with covariance.</p>
+<p>This node subscribes to NavSatFix to publish the pose of <strong>base_link</strong>. The data in NavSatFix represents the antenna's position. Therefore, it performs a coordinate transformation using the tf from <code>base_link</code> to the antenna's position. The frame_id of the antenna's position refers to NavSatFix's <code>header.frame_id</code>.
+(<strong>Note that <code>header.frame_id</code> in NavSatFix indicates the antenna's frame_id, not the Earth or reference ellipsoid.</strong> <a href="https://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/NavSatFix.html">See also NavSatFix definition.</a>)</p>
+<p>If the transformation from <code>base_link</code> to the antenna cannot be obtained, it outputs the pose of the antenna position without performing coordinate transformation.</p>
 <h2 id="inner-workings-algorithms">Inner-workings / Algorithms<a class="headerlink" href="#inner-workings-algorithms" title="Permanent link">#</a></h2>
 <h2 id="inputs-outputs">Inputs / Outputs<a class="headerlink" href="#inputs-outputs" title="Permanent link">#</a></h2>
 <h3 id="input">Input<a class="headerlink" href="#input" title="Permanent link">#</a></h3>
@@ -14697,13 +14732,6 @@
 <td>string</td>
 <td>frame id for base_frame</td>
 <td>base_link</td>
-<td>N/A</td>
-</tr>
-<tr>
-<td>gnss_frame</td>
-<td>string</td>
-<td>frame id for gnss_frame</td>
-<td>gnss</td>
 <td>N/A</td>
 </tr>
 <tr>
