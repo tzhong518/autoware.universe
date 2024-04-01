@@ -12298,6 +12298,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
@@ -12444,6 +12446,54 @@
         <label class="md-nav__title" for="__nav_10_3">
           <span class="md-nav__icon md-icon"></span>
           Simple planning simulator
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10_4" >
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../simulator/vehicle_door_simulator/">Vehicle door simulator</a>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_10_4">
+          <span class="md-nav__icon md-icon"></span>
+          Vehicle door simulator
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -15164,7 +15214,7 @@ The range is calculated from the intersection between the ego path and the cross
 This range is meant to be large when ego is far from the crosswalk and small when ego is close.</p>
 <p>In order to avoid flickering decisions, a time buffer can be used such that the decision to add (or remove) the slow down is only taken
 after an occlusion is detected (or not detected) for a consecutive time defined by the <code>time_buffer</code> parameter.</p>
-<p>To ignore occlusions when the pedestrian light is red, <code>ignore_with_red_traffic_light</code> should be set to true.</p>
+<p>To ignore occlusions when the crosswalk has a traffic light, <code>ignore_with_traffic_light</code> should be set to true.</p>
 <p>To ignore temporary occlusions caused by moving objects,
 <code>ignore_behind_predicted_objects</code> should be set to true.
 By default, occlusions behind an object with velocity higher than <code>ignore_velocity_thresholds.default</code> are ignored.
@@ -15226,7 +15276,7 @@ To inflate the masking behind objects, their footprint can be made bigger using 
 <td>minimum value of an occupied cell in the occupancy grid</td>
 </tr>
 <tr>
-<td><code>ignore_with_red_traffic_light</code></td>
+<td><code>ignore_with_traffic_light</code></td>
 <td>[-]</td>
 <td>bool</td>
 <td>if true, occlusions at crosswalks with traffic lights are ignored</td>

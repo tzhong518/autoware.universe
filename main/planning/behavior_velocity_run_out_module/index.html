@@ -12298,6 +12298,8 @@
         
           
         
+          
+        
       
       
         <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
@@ -12444,6 +12446,54 @@
         <label class="md-nav__title" for="__nav_10_3">
           <span class="md-nav__icon md-icon"></span>
           Simple planning simulator
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10_4" >
+      
+      
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../simulator/vehicle_door_simulator/">Vehicle door simulator</a>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_10_4">
+          <span class="md-nav__icon md-icon"></span>
+          Vehicle door simulator
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -14690,7 +14740,7 @@
 
 <div><h2 id="run-out">Run Out<a class="headerlink" href="#run-out" title="Permanent link">#</a></h2>
 <h3 id="role">Role<a class="headerlink" href="#role" title="Permanent link">#</a></h3>
-<p><code>run_out</code> is the module that decelerates and stops for dynamic obstacles such as pedestrians and bicycles.</p>
+<p><code>run_out</code> is the module that decelerates and stops for dynamic obstacles such as pedestrians, bicycles and motorcycles.</p>
 <p><img alt="brief" src="docs/run_out_overview.svg"></p>
 <h3 id="activation-timing">Activation Timing<a class="headerlink" href="#activation-timing" title="Permanent link">#</a></h3>
 <p>This module is activated if <code>launch_run_out</code> becomes true</p>
@@ -14789,6 +14839,10 @@ We need lanelet map that has the information of partition to use this feature.
 By this feature, we can reduce unnecessary deceleration by obstacles that are unlikely to jump out to the lane.
 You can choose whether to use this feature by parameter of <code>use_partition_lanelet</code>.</p>
 <p><img alt="brief" src="docs/exclude_obstacles_by_partition.svg"></p>
+<h5 id="exclude-obstacles-that-cross-the-ego-vehicles-cut-line">Exclude obstacles that cross the ego vehicle's "cut line"<a class="headerlink" href="#exclude-obstacles-that-cross-the-ego-vehicles-cut-line" title="Permanent link">#</a></h5>
+<p>This module can exclude obstacles that have predicted paths that will cross the back side of the ego vehicle. It excludes obstacles if their predicted path crosses the ego's "cut line". The "cut line" is a virtual line segment that is perpendicular to the ego vehicle and that passes through the ego's base link.</p>
+<p>You can choose whether to use this feature by setting the parameter <code>use_ego_cut_line</code> to <code>true</code> or <code>false</code>. The width of the line can be tuned with the parameter <code>ego_cut_line_length</code>.</p>
+<p><img alt="brief" src="docs/ego_cut_line.svg"></p>
 <h4 id="collision-detection">Collision detection<a class="headerlink" href="#collision-detection" title="Permanent link">#</a></h4>
 <h5 id="detect-collision-with-dynamic-obstacles">Detect collision with dynamic obstacles<a class="headerlink" href="#detect-collision-with-dynamic-obstacles" title="Permanent link">#</a></h5>
 <p>Along the ego vehicle path, determine the points where collision detection is to be performed for each <code>detection_span</code>.</p>
@@ -14831,6 +14885,11 @@ You can choose whether to use this feature by parameter of <code>slow_down_limit
 <td><code>detection_method</code></td>
 <td>string</td>
 <td>[-] candidate: Object, ObjectWithoutPath, Points</td>
+</tr>
+<tr>
+<td><code>target_obstacle_types</code></td>
+<td>vector of string</td>
+<td>[-] specifies which obstacle types will be considered by the module, if the obstacles classification type is not written here, it will be ignored. candidate: ["PEDESTRIAN", "BICYCLE","MOTORCYCLE"]</td>
 </tr>
 <tr>
 <td><code>use_partition_lanelet</code></td>
