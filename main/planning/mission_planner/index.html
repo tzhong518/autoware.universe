@@ -14799,8 +14799,11 @@
 The route is made of a sequence of lanes on a static map.
 Dynamic objects (e.g. pedestrians and other vehicles) and dynamic map information (e.g. road construction which blocks some lanes) are not considered during route planning.
 Therefore, the output topic is only published when the goal pose or check points are given and will be latched until the new goal pose or check points are given.</p>
-<p>The core implementation does not depend on a map format.
-In current Autoware.universe, only Lanelet2 map format is supported.</p>
+<p>The core implementation does not depend on a map format. Any planning algorithms can be added as plugin modules.
+In current Autoware.universe, only the plugin for Lanelet2 map format is supported.</p>
+<p>This package also manages routes for MRM. The <code>route_selector</code> node duplicates the <code>mission_planner</code> interface and provides it for normal and MRM respectively.
+It distributes route requests and planning results according to current MRM operation state.</p>
+<p><img alt="architecture" src="media/architecture.drawio.svg"></p>
 <h2 id="interfaces">Interfaces<a class="headerlink" href="#interfaces" title="Permanent link">#</a></h2>
 <h3 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">#</a></h3>
 <table>
@@ -14870,39 +14873,49 @@ In current Autoware.universe, only Lanelet2 map format is supported.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>/planning/mission_planning/clear_route</code></td>
-<td>autoware_adapi_v1_msgs/srv/ClearRoute</td>
+<td><code>/planning/mission_planning/mission_planner/clear_route</code></td>
+<td>tier4_planning_msgs/srv/ClearRoute</td>
 <td>route clear request</td>
 </tr>
 <tr>
-<td><code>/planning/mission_planning/set_route_points</code></td>
-<td>autoware_adapi_v1_msgs/srv/SetRoutePoints</td>
-<td>route request with pose waypoints. Assumed the vehicle is stopped.</td>
+<td><code>/planning/mission_planning/mission_planner/set_waypoint_route</code></td>
+<td>tier4_planning_msgs/srv/SetWaypointRoute</td>
+<td>route request with lanelet waypoints.</td>
 </tr>
 <tr>
-<td><code>/planning/mission_planning/set_route</code></td>
-<td>autoware_adapi_v1_msgs/srv/SetRoute</td>
-<td>route request with lanelet waypoints. Assumed the vehicle is stopped.</td>
+<td><code>/planning/mission_planning/mission_planner/set_lanelet_route</code></td>
+<td>tier4_planning_msgs/srv/SetLaneletRoute</td>
+<td>route request with pose waypoints.</td>
 </tr>
 <tr>
-<td><code>/planning/mission_planning/change_route_points</code></td>
-<td>autoware_adapi_v1_msgs/srv/SetRoutePoints</td>
-<td>route change request with pose waypoints. This can be called when the vehicle is moving.</td>
+<td><code>/planning/mission_planning/route_selector/main/clear_route</code></td>
+<td>tier4_planning_msgs/srv/ClearRoute</td>
+<td>main route clear request</td>
 </tr>
 <tr>
-<td><code>/planning/mission_planning/change_route</code></td>
-<td>autoware_adapi_v1_msgs/srv/SetRoute</td>
-<td>route change request with lanelet waypoints. This can be called when the vehicle is moving.</td>
+<td><code>/planning/mission_planning/route_selector/main/set_waypoint_route</code></td>
+<td>tier4_planning_msgs/srv/SetWaypointRoute</td>
+<td>main route request with lanelet waypoints.</td>
 </tr>
 <tr>
-<td><code>~/srv/set_mrm_route</code></td>
-<td>autoware_adapi_v1_msgs/srv/SetRoutePoints</td>
-<td>set emergency route. This can be called when the vehicle is moving.</td>
+<td><code>/planning/mission_planning/route_selector/main/set_lanelet_route</code></td>
+<td>tier4_planning_msgs/srv/SetLaneletRoute</td>
+<td>main route request with pose waypoints.</td>
 </tr>
 <tr>
-<td><code>~/srv/clear_mrm_route</code></td>
-<td>std_srvs/srv/Trigger</td>
-<td>clear emergency route.</td>
+<td><code>/planning/mission_planning/route_selector/mrm/clear_route</code></td>
+<td>tier4_planning_msgs/srv/ClearRoute</td>
+<td>mrm route clear request</td>
+</tr>
+<tr>
+<td><code>/planning/mission_planning/route_selector/mrm/set_waypoint_route</code></td>
+<td>tier4_planning_msgs/srv/SetWaypointRoute</td>
+<td>mrm route request with lanelet waypoints.</td>
+</tr>
+<tr>
+<td><code>/planning/mission_planning/route_selector/mrm/set_lanelet_route</code></td>
+<td>tier4_planning_msgs/srv/SetLaneletRoute</td>
+<td>mrm route request with pose waypoints.</td>
 </tr>
 </tbody>
 </table>
@@ -14917,12 +14930,12 @@ In current Autoware.universe, only Lanelet2 map format is supported.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>input/vector_map</code></td>
+<td><code>~/input/vector_map</code></td>
 <td>autoware_auto_mapping_msgs/HADMapBin</td>
 <td>vector map of Lanelet2</td>
 </tr>
 <tr>
-<td><code>input/modified_goal</code></td>
+<td><code>~/input/modified_goal</code></td>
 <td>geometry_msgs/PoseWithUuidStamped</td>
 <td>modified goal pose</td>
 </tr>
@@ -14939,8 +14952,8 @@ In current Autoware.universe, only Lanelet2 map format is supported.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>/planning/mission_planning/route_state</code></td>
-<td>autoware_adapi_v1_msgs/msg/RouteState</td>
+<td><code>/planning/mission_planning/state</code></td>
+<td>tier4_planning_msgs/msg/RouteState</td>
 <td>route state</td>
 </tr>
 <tr>
@@ -14949,12 +14962,32 @@ In current Autoware.universe, only Lanelet2 map format is supported.</p>
 <td>route</td>
 </tr>
 <tr>
-<td><code>debug/route_marker</code></td>
+<td><code>/planning/mission_planning/route_selector/main/state</code></td>
+<td>tier4_planning_msgs/msg/RouteState</td>
+<td>main route state</td>
+</tr>
+<tr>
+<td><code>/planning/mission_planning/route_selector/main/route</code></td>
+<td>autoware_planning_msgs/LaneletRoute</td>
+<td>main route</td>
+</tr>
+<tr>
+<td><code>/planning/mission_planning/route_selector/mrm/state</code></td>
+<td>tier4_planning_msgs/msg/RouteState</td>
+<td>mrm route state</td>
+</tr>
+<tr>
+<td><code>/planning/mission_planning/route_selector/mrm/route</code></td>
+<td>autoware_planning_msgs/LaneletRoute</td>
+<td>mrm route</td>
+</tr>
+<tr>
+<td><code>~/debug/route_marker</code></td>
 <td>visualization_msgs/msg/MarkerArray</td>
 <td>route marker for debug</td>
 </tr>
 <tr>
-<td><code>debug/goal_footprint</code></td>
+<td><code>~/debug/goal_footprint</code></td>
 <td>visualization_msgs/msg/MarkerArray</td>
 <td>goal footprint for debug</td>
 </tr>
@@ -15008,23 +15041,11 @@ To calculate <code>route_lanelets</code>,</p>
 <li>Emergency route</li>
 <li>Goal modification</li>
 </ul>
-<p><img alt="rerouting_interface" src="media/rerouting_interface.svg"></p>
 <h4 id="route-change-api">Route change API<a class="headerlink" href="#route-change-api" title="Permanent link">#</a></h4>
-<ul>
-<li><code>change_route_points</code></li>
-<li><code>change_route</code></li>
-</ul>
-<p>This is route change that the application makes using the API. It is used when changing the destination while driving or when driving a divided loop route. When the vehicle is driving on a MRM route, normal rerouting by this interface is not allowed.</p>
+<p>It is used when changing the destination while driving or when driving a divided loop route. When the vehicle is driving on a MRM route, normal rerouting by this interface is not allowed.</p>
 <h4 id="emergency-route">Emergency route<a class="headerlink" href="#emergency-route" title="Permanent link">#</a></h4>
-<ul>
-<li><code>set_mrm_route</code></li>
-<li><code>clear_mrm_route</code></li>
-</ul>
-<p>This interface for the MRM that pulls over the road shoulder. It has to be stopped as soon as possible, so a reroute is required. The MRM route has priority over the normal route. And if MRM route is cleared, try to return to the normal route also with a rerouting safety check.</p>
+<p>The interface for the MRM that pulls over the road shoulder. It has to be stopped as soon as possible, so a reroute is required. The MRM route has priority over the normal route. And if MRM route is cleared, try to return to the normal route also with a rerouting safety check.</p>
 <h5 id="goal-modification">Goal modification<a class="headerlink" href="#goal-modification" title="Permanent link">#</a></h5>
-<ul>
-<li><code>modified_goal</code></li>
-</ul>
 <p>This is a goal change to pull over, avoid parked vehicles, and so on by a planning component. If the modified goal is outside the calculated route, a reroute is required. This goal modification is executed by checking the local environment and path safety as the vehicle actually approaches the destination. And this modification is allowed for both normal_route and mrm_route.
 The new route generated here is sent to the AD API so that it can also be referenced by the application. Note, however, that the specifications here are subject to change in the future.</p>
 <h4 id="rerouting-limitations">Rerouting Limitations<a class="headerlink" href="#rerouting-limitations" title="Permanent link">#</a></h4>
