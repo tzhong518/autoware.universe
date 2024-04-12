@@ -15,6 +15,7 @@
 #ifndef TENSORRT_YOLOX__TENSORRT_YOLOX_NODE_HPP_
 #define TENSORRT_YOLOX__TENSORRT_YOLOX_NODE_HPP_
 
+#include "detected_object_validation/utils/utils.hpp"
 #include "object_recognition_utils/object_recognition_utils.hpp"
 
 #include <autoware/universe_utils/ros/debug_publisher.hpp>
