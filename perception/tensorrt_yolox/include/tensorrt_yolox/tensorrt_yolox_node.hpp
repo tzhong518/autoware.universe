@@ -15,8 +15,8 @@
 #ifndef TENSORRT_YOLOX__TENSORRT_YOLOX_NODE_HPP_
 #define TENSORRT_YOLOX__TENSORRT_YOLOX_NODE_HPP_
 
+#include "detected_object_validation/utils/utils.hpp"
 #include "object_recognition_utils/object_recognition_utils.hpp"
-#include "utils/utils.hpp"
 
 #include <image_transport/image_transport.hpp>
 #include <opencv2/opencv.hpp>

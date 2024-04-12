@@ -265,13 +265,16 @@ TrtYoloX::TrtYoloX(
       throw std::runtime_error{s.str()};
       */
   }
+  int output_index = trt_common_->getBindingIndex("output");
+  int segmenter_index = trt_common_->getBindingIndex("segmenter");
+  int feature_index = trt_common_->getBindingIndex("zbackbonefeature");
 
   // GPU memory allocation
   const auto input_dims = trt_common_->getBindingDimensions(0);
   const auto input_size =
     std::accumulate(input_dims.d + 1, input_dims.d + input_dims.nbDims, 1, std::multiplies<int>());
   if (needs_output_decode_) {
-    const auto output_dims = trt_common_->getBindingDimensions(1);
+    const auto output_dims = trt_common_->getBindingDimensions(output_index);
     input_d_ = cuda_utils::make_unique<float[]>(batch_config[2] * input_size);
     out_elem_num_ = std::accumulate(
       output_dims.d + 1, output_dims.d + output_dims.nbDims, 1, std::multiplies<int>());
@@ -304,7 +307,7 @@ TrtYoloX::TrtYoloX(
     segmentation_out_elem_num_ = 0;
     for (int m = 0; m < multitask_; m++) {
       const auto output_dims =
-        trt_common_->getBindingDimensions(m + 2);  // 0 : input, 1 : output for detections
+        trt_common_->getBindingDimensions(segmenter_index);  // 0 : input, 1 : output for detections
       size_t out_elem_num = std::accumulate(
         output_dims.d + 1, output_dims.d + output_dims.nbDims, 1, std::multiplies<int>());
       out_elem_num = out_elem_num * batch_config[2];
@@ -315,6 +318,22 @@ TrtYoloX::TrtYoloX(
     segmentation_out_prob_d_ = cuda_utils::make_unique<float[]>(segmentation_out_elem_num_);
     segmentation_out_prob_h_ =
       cuda_utils::make_unique_host<float[]>(segmentation_out_elem_num_, cudaHostAllocPortable);
+
+    // Allocate buffer for backbonefeature
+    backbonefeature_out_elem_num_ = 0;
+    for (int m = 0; m < multitask_; m++) {
+      const auto output_dims =
+        trt_common_->getBindingDimensions(feature_index);  // 0 : input, 1 : output for
+      size_t out_elem_num = std::accumulate(
+        output_dims.d + 1, output_dims.d + output_dims.nbDims, 1, std::multiplies<int>());
+      out_elem_num = out_elem_num * batch_config[2];
+      backbonefeature_out_elem_num_ += out_elem_num;
+    }
+    backbonefeature_out_elem_num_per_batch_ =
+      static_cast<int>(backbonefeature_out_elem_num_ / batch_config[2]);
+    backbonefeature_out_prob_d_ = cuda_utils::make_unique<float[]>(backbonefeature_out_elem_num_);
+    backbonefeature_out_prob_h_ =
+      cuda_utils::make_unique_host<float[]>(backbonefeature_out_elem_num_, cudaHostAllocPortable);
   }
   if (use_gpu_preprocess) {
     use_gpu_preprocess_ = true;
@@ -386,8 +405,8 @@ void TrtYoloX::initPreprocessBuffer(int width, int height)
     if (multitask_) {
       size_t argmax_out_elem_num = 0;
       for (int m = 0; m < multitask_; m++) {
-        const auto output_dims =
-          trt_common_->getBindingDimensions(m + 2);  // 0 : input, 1 : output for detections
+        const auto output_dims = trt_common_->getBindingDimensions(
+          trt_common_->getBindingIndex("segmenter"));  // 0 : input, 1 : output for detections
         const float scale = std::min(
           output_dims.d[3] / static_cast<float>(width),
           output_dims.d[2] / static_cast<float>(height));
@@ -467,8 +486,8 @@ void TrtYoloX::preprocessGpu(const std::vector<cv::Mat> & images)
 
     if (multitask_) {
       for (int m = 0; m < multitask_; m++) {
-        const auto output_dims =
-          trt_common_->getBindingDimensions(m + 2);  // 0: input, 1: output for detections
+        const auto output_dims = trt_common_->getBindingDimensions(
+          trt_common_->getBindingIndex("segmenter"));  // 0: input, 1: output for detections
         const float scale = std::min(
           output_dims.d[3] / static_cast<float>(image.cols),
           output_dims.d[2] / static_cast<float>(image.rows));
@@ -897,7 +916,9 @@ bool TrtYoloX::feedforwardAndDecode(
 {
   std::vector<void *> buffers = {input_d_.get(), out_prob_d_.get()};
   if (multitask_) {
-    buffers = {input_d_.get(), out_prob_d_.get(), segmentation_out_prob_d_.get()};
+    buffers = {
+      input_d_.get(), backbonefeature_out_prob_d_.get(), out_prob_d_.get(),
+      segmentation_out_prob_d_.get()};
   }
   trt_common_->enqueueV2(buffers.data(), *stream_, nullptr);
 
@@ -910,6 +931,9 @@ bool TrtYoloX::feedforwardAndDecode(
     CHECK_CUDA_ERROR(cudaMemcpyAsync(
       segmentation_out_prob_h_.get(), segmentation_out_prob_d_.get(),
       sizeof(float) * segmentation_out_elem_num_, cudaMemcpyDeviceToHost, *stream_));
+    CHECK_CUDA_ERROR(cudaMemcpyAsync(
+      backbonefeature_out_prob_h_.get(), backbonefeature_out_prob_d_.get(),
+      sizeof(float) * backbonefeature_out_elem_num_, cudaMemcpyDeviceToHost, *stream_));
   }
   cudaStreamSynchronize(*stream_);
   objects.clear();
@@ -930,8 +954,8 @@ bool TrtYoloX::feedforwardAndDecode(
       int batch =
         static_cast<int>(segmentation_out_elem_num_ / segmentation_out_elem_num_per_batch_);
       for (int m = 0; m < multitask_; m++) {
-        const auto output_dims =
-          trt_common_->getBindingDimensions(m + 2);  // 0 : input, 1 : output for detections
+        const auto output_dims = trt_common_->getBindingDimensions(
+          trt_common_->getBindingIndex("segmenter"));  // 0 : input, 1 : output for detections
         size_t out_elem_num = std::accumulate(
           output_dims.d + 1, output_dims.d + output_dims.nbDims, 1, std::multiplies<int>());
         out_elem_num = out_elem_num * batch;
@@ -951,6 +975,9 @@ bool TrtYoloX::feedforwardAndDecode(
         segmentation_masks_.push_back(mask);
         counter += out_elem_num;
       }
+
+      float * backbonefeature =
+        backbonefeature_out_prob_h_.get() + (i * backbonefeature_out_elem_num_per_batch_);
     } else {
       continue;
     }
