@@ -310,6 +310,12 @@ private:
   // device buffer for argmax postprocessing  on GPU
   CudaUniquePtr<unsigned char[]> argmax_buf_d_;
   std::vector<tensorrt_yolox::Colormap> sematic_color_map_;
+
+  // buff size for backbonefeature heads
+  CudaUniquePtr<float[]> backbonefeature_out_prob_d_;
+  CudaUniquePtrHost<float[]> backbonefeature_out_prob_h_;
+  size_t backbonefeature_out_elem_num_;
+  size_t backbonefeature_out_elem_num_per_batch_;
 };
 
 }  // namespace tensorrt_yolox
