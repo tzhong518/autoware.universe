@@ -104,6 +104,8 @@ private:
     {"MOTORBIKE", 8},   // motorcycle
   };
   RoiOverlaySegmenLabel roi_overlay_segment_labels_;
+  std::unique_ptr<tier4_autoware_utils::StopWatch<std::chrono::milliseconds>> stop_watch_ptr_;
+  std::unique_ptr<tier4_autoware_utils::DebugPublisher> debug_publisher_;
 };
 
 }  // namespace tensorrt_yolox
