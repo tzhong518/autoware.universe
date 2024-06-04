@@ -556,6 +556,11 @@ nvinfer1::Dims TrtCommon::getBindingDimensions(const int32_t index) const
 #endif
 }
 
+int32_t TrtCommon::getBindingIndex(const char * name)
+{
+  return engine_->getBindingIndex(name);
+}
+
 int32_t TrtCommon::getNbBindings()
 {
   return engine_->getNbBindings();
