@@ -44,7 +44,7 @@ struct Roi
  * @param[in] stream cuda stream
  */
 extern void resize_bilinear_gpu(
-  unsigned char * dst, unsigned char * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c,
+  float * dst, unsigned char * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c,
   cudaStream_t stream);
 
 /**
@@ -136,9 +136,47 @@ extern void resize_bilinear_letterbox_nhwc_to_nchw32_gpu(
  * @param[in] norm normalization
  * @param[in] stream cuda stream
  */
+extern void resize_bilinear_nhwc_to_nchw32_batch_gpu(
+  float * dst, unsigned char * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c, int batch,
+  float norm, cudaStream_t stream);
+
+/**
+ * @brief Optimized preprocessing including resize, letterbox, nhwc2nchw, toFloat and normalization
+ * with batching for YOLOX on gpus
+ * @param[out] dst processed image
+ * @param[in] src image
+ * @param[in] d_w width for output
+ * @param[in] d_h height for output
+ * @param[in] d_c channel for output
+ * @param[in] s_w width for input
+ * @param[in] s_h height for input
+ * @param[in] s_c channel for input
+ * @param[in] batch batch size
+ * @param[in] norm normalization
+ * @param[in] stream cuda stream
+ */
 extern void resize_bilinear_letterbox_nhwc_to_nchw32_batch_gpu(
   float * dst, unsigned char * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c, int batch,
   float norm, cudaStream_t stream);
+
+/**
+ * @brief Optimized preprocessing including resize, letterbox, nhwc2nchw, toFloat and normalization
+ * with batching for YOLOX on gpus
+ * @param[out] dst processed image
+ * @param[in] src image
+ * @param[in] d_w width for output
+ * @param[in] d_h height for output
+ * @param[in] d_c channel for output
+ * @param[in] s_w width for input
+ * @param[in] s_h height for input
+ * @param[in] s_c channel for input
+ * @param[in] batch batch size
+ * @param[in] norm normalization
+ * @param[in] stream cuda stream
+ */
+extern void resize_bilinear_batch_gpu(
+  float * dst, float * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c, int batch,
+  float image_ratio, float norm, cudaStream_t stream);
 
 /**
  * @brief Optimized preprocessing including crop, resize, letterbox, nhwc2nchw, toFloat and

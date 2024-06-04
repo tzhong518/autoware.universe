@@ -59,6 +59,24 @@ __device__ float lerp2d(int f00, int f01, int f10, int f11, float centroid_h, fl
   return r;
 }
 
+__device__ double lerp1d(float a, float b, float w)
+{
+  return fma(w, b, fma(-w, a, a));
+}
+
+__device__ float lerp2d(float f00, float f01, float f10, float f11, float centroid_h, float centroid_w)
+{
+  centroid_w = (1 + lroundf(centroid_w) - centroid_w) / 2;
+  centroid_h = (1 + lroundf(centroid_h) - centroid_h) / 2;
+
+  float r0, r1, r;
+  r0 = lerp1d(f00, f01, centroid_w);
+  r1 = lerp1d(f10, f11, centroid_w);
+
+  r = lerp1d(r0, r1, centroid_h);  //+ 0.00001
+  return r;
+}
+
 __global__ void resize_bilinear_kernel(
   int N, unsigned char * dst_img, unsigned char * src_img, int dst_h, int dst_w, int src_h,
   int src_w, float stride_h, float stride_w)
@@ -116,6 +134,91 @@ void resize_bilinear_gpu(
 
   resize_bilinear_kernel<<<cuda_gridsize(N), block, 0, stream>>>(
     N, dst, src, d_h, d_w, s_h, s_w, stride_h, stride_w);
+}
+
+__global__ void resize_bilinear_nhwc_to_nchw32_batch_kernel(
+  int N, float * dst_img, unsigned char * src_img, int dst_h, int dst_w, int src_h,
+  int src_w, float stride_h, float stride_w, float norm, int batch)
+{
+  // NHWC
+  int index = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
+
+  if (index >= N) return;
+  int C = 3;
+  int H = dst_h;
+  int W = dst_w;
+
+  int c = 0;
+  // int n = 0;
+
+  int w = index % W;
+  int h = index / W;
+
+  float centroid_h, centroid_w;
+  centroid_h = stride_h * (float)(h + 0.5);
+  centroid_w = stride_w * (float)(w + 0.5);
+
+  int f00, f01, f10, f11;
+
+  int src_h_idx = lroundf(centroid_h) - 1;
+  int src_w_idx = lroundf(centroid_w) - 1;
+  if (src_h_idx < 0) {
+    src_h_idx = 0;
+  }
+  if (src_w_idx < 0) {
+    src_w_idx = 0;
+  }
+
+  index = C * w + C * W * h;
+  // Unroll
+  // int b;
+  // for (b = 0; b < batch; b++) {
+  //   for (c = 0; c < C; c++) {
+  //     f00 = n * src_h * src_w * C + src_h_idx * src_w * C + src_w_idx * C + c;
+  //     f01 = n * src_h * src_w * C + src_h_idx * src_w * C + (src_w_idx + 1) * C + c;
+  //     f10 = n * src_h * src_w * C + (src_h_idx + 1) * src_w * C + src_w_idx * C + c;
+  //     f11 = n * src_h * src_w * C + (src_h_idx + 1) * src_w * C + (src_w_idx + 1) * C + c;
+
+  //     float rs = lroundf(lerp2d(
+  //       (int)src_img[f00], (int)src_img[f01], (int)src_img[f10], (int)src_img[f11], centroid_h,
+  //       centroid_w));
+  //     dst_img[index + c] = (unsigned char)rs;
+  //   }
+  // }
+  int stride = src_w * C;
+  int b_stride = src_h * src_w * C;
+  int b;
+  for (b = 0; b < batch; b++) {
+    for (c = 0; c < C; c++) {
+      // NHWC
+      f00 = src_h_idx * stride + src_w_idx * C + c + b * b_stride;
+      f01 = src_h_idx * stride + (src_w_idx + 1) * C + c + b * b_stride;
+      f10 = (src_h_idx + 1) * stride + src_w_idx * C + c + b * b_stride;
+      f11 = (src_h_idx + 1) * stride + (src_w_idx + 1) * C + c + b * b_stride;
+
+      float rs = lroundf(lerp2d(
+        (int)src_img[f00], (int)src_img[f01], (int)src_img[f10], (int)src_img[f11], centroid_h,
+        centroid_w));
+
+      // NCHW
+      int dst_index = w + (W * h) + (W * H * c) + b * (W * H * C);
+
+      dst_img[dst_index] = (float)rs;
+      dst_img[dst_index] *= norm;
+    }
+  }
+}
+
+void resize_bilinear_nhwc_to_nchw32_batch_gpu(
+  float * dst, unsigned char * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c, int batch,
+  float norm, cudaStream_t stream)
+{
+  int N = d_w * d_h;
+  float stride_h = (float)s_h / (float)d_h;
+  float stride_w = (float)s_w / (float)d_w;
+
+  resize_bilinear_nhwc_to_nchw32_batch_kernel<<<cuda_gridsize(N), block, 0, stream>>>(
+    N, dst, src, d_h, d_w, s_h, s_w, stride_h, stride_w, norm, batch);
 }
 
 __global__ void letterbox_kernel(
@@ -451,6 +554,96 @@ void resize_bilinear_letterbox_nhwc_to_nchw32_batch_gpu(
   */
 }
 
+__global__ void resize_bilinear_batch_kernel(
+  int N, float * dst_img, float * src_img, int dst_h, int dst_w, int src_h, int src_w, int src_c,
+  float image_ratio, float scale, float norm, int batch)
+{
+  // NCHW
+  int index = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
+
+  if (index >= N) return;
+  int C = src_c; // ChannelDim
+  int H = dst_h;
+  int W = dst_w;
+  int c = 0;
+  // // w * h * b
+  // float rgb_mean[] = {0.485, 0.456, 0.406};
+  // float rgb_std[] = {1.0 / 0.229, 1.0 / 0.224, 1.0 / 0.225};
+  // // int dst_index = w + (W * h) + (W * H * c) + b * (W * H * C);
+  // // for (c = 0; c < 3; c++){
+  // printf("rgb_mean:%f", rgb_mean[0]);
+  // printf("rgb_std:%f", rgb_std[0]);
+  // }
+
+  int w = index % W;
+  int h = index / (W);
+
+  float centroid_h, centroid_w;
+  centroid_h = scale * image_ratio * (float)(h + 0.5);
+  centroid_w = scale * (float)(w + 0.5);
+
+  int f00, f01, f10, f11;
+
+  int src_h_idx = lroundf(centroid_h) - 1;
+  int src_w_idx = lroundf(centroid_w) - 1;
+  src_h_idx = (src_h_idx < 0) ? 0 : src_h_idx;
+  src_h_idx = (src_h_idx >= (src_h - 1)) ? src_h - 2 : src_h_idx;
+  src_w_idx = (src_w_idx < 0) ? 0 : src_w_idx;
+  src_w_idx = (src_w_idx >= (src_w - 1)) ? src_w - 2 : src_w_idx;
+  // Unroll
+  int stride = src_w * C;
+  int b_stride = src_h * src_w * C;
+  int b;
+  for (b = 0; b < batch; b++) {
+    for (c = 0; c < C; c++) {
+      // NCHW
+      f00 = src_w_idx + (src_w * src_h_idx) + (src_w * src_h * c) + b * (src_w * src_h * C);
+      f01 = src_w_idx + 1 + (src_w * src_h_idx) + (src_w * src_h * c) + b * (src_w * src_h * C);
+      f10 = src_w_idx + (src_w * (src_h_idx+1)) + (src_w * src_h * c) + b * (src_w * src_h * C);
+      f11 = src_w_idx + 1 + (src_w * (src_h_idx+1)) + (src_w * src_h * c) + b * (src_w * src_h * C);
+
+      // float rs = lroundf(lerp2d(
+      //     (int)src_img[f00], (int)src_img[f01], (int)src_img[f10], (int)src_img[f11], centroid_h,
+      //     centroid_w));
+      float rs = lroundf(lerp2d(
+          (float)src_img[f00], (float)src_img[f01], (float)src_img[f10], (float)src_img[f11], centroid_h,
+          centroid_w));
+
+      // NCHW
+      int dst_index = w + (dst_w * h) + (dst_w * dst_h * c) + b * (dst_w * dst_h * src_c);
+
+      dst_img[dst_index] = (float)rs;
+      dst_img[dst_index] = (dst_img[dst_index]);//* norm );// - 0.485) * 4.36;
+      // if (C==3 && norm < 1) {
+      //   if (c==2) {
+      //     dst_img[dst_index] = (dst_img[dst_index] - 0.485) * 4.36;
+      //     // dst_img[dst_index] = (dst_img[dst_index] - rgb_mean[c]) * rgb_std[c];
+      //     }
+      //   if (c==1) {
+      //     dst_img[dst_index] = (dst_img[dst_index] - 0.456) * 4.46;
+      //     // dst_img[dst_index] = (dst_img[dst_index] - rgb_mean[c]) * rgb_std[c];
+      //     }
+      //   if (c==0) {
+      //     dst_img[dst_index] = (dst_img[dst_index] - 0.406) * 4.44;
+      //     // dst_img[dst_index] = (dst_img[dst_index] - rgb_mean[c]) * rgb_std[c];
+      //     }
+      //   // dst_img[dst_index] = dst_img[dst_index] * norm;
+      // }
+    }
+  }
+}
+
+void resize_bilinear_batch_gpu(
+  float * dst, float * src, int d_w, int d_h, int d_c, int s_w, int s_h, int s_c, int batch,
+  float image_ratio, float norm, cudaStream_t stream)
+{
+  int N = d_w * d_h;
+  const float scale = std::min(d_w / (float)s_w, d_h / (float)s_h);
+
+  resize_bilinear_batch_kernel<<<cuda_gridsize(N), block, 0, stream>>>(
+    N, dst, src, d_h, d_w, s_h, s_w, s_c, image_ratio, 1.0 / scale, norm, batch);
+}
+
 __global__ void crop_resize_bilinear_letterbox_nhwc_to_nchw32_batch_kernel(
   int N, float * dst_img, unsigned char * src_img, int dst_h, int dst_w, int src_h, int src_w,
   Roi * d_roi, float norm, int batch)
@@ -569,6 +762,7 @@ __global__ void multi_scale_resize_bilinear_letterbox_nhwc_to_nchw32_batch_kerne
       int dst_index;
       // NHWC
       f00 = src_h_idx * stride + src_w_idx * C + c;
+      f00 = src_h_idx * src_w * C + src_w_idx * C + c;
       f01 = src_h_idx * stride + (src_w_idx + 1) * C + c;
       f10 = (src_h_idx + 1) * stride + src_w_idx * C + c;
       f11 = (src_h_idx + 1) * stride + (src_w_idx + 1) * C + c;

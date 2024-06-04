@@ -22,7 +22,7 @@
 
     # publish color mask for result visualization
     is_publish_color_mask: false
-    color_map_path: "/home/tzhong/workspace/trt-yoloXP/data/bdd100k_semseg.csv"
+
     roi_overlay_segment_label:
       UNKNOWN : true
       CAR : true

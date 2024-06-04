@@ -190,9 +190,15 @@ void TrtYoloXNode::onImage(const sensor_msgs::msg::Image::ConstSharedPtr msg)
     return;
   }
   auto & mask = masks.at(0);
-
-  for (const auto & yolox_object : objects.at(0)) {
+  // TODO(badai-nguyen): change to postprocess on gpu option
+  cv::resize(
+    mask, mask, cv::Size(in_image_ptr->image.cols, in_image_ptr->image.rows), 0, 0,
+    cv::INTER_NEAREST);
+  std::cout << " objects.at(1):" << objects.at(1).size() << std::endl;
+  for (const auto & yolox_object : objects.at(1)) {
     tier4_perception_msgs::msg::DetectedObjectWithFeature object;
+    std::cout << "yolox_object:" << yolox_object.x_offset << "," << yolox_object.y_offset << ","
+              << yolox_object.width << "," << yolox_object.height << std::endl;
     object.feature.roi.x_offset = yolox_object.x_offset;
     object.feature.roi.y_offset = yolox_object.y_offset;
     object.feature.roi.width = yolox_object.width;
@@ -207,6 +213,7 @@ void TrtYoloXNode::onImage(const sensor_msgs::msg::Image::ConstSharedPtr msg)
       std::min(static_cast<int>(object.feature.roi.x_offset + object.feature.roi.width), width);
     const auto bottom =
       std::min(static_cast<int>(object.feature.roi.y_offset + object.feature.roi.height), height);
+    std::cout << "cv:" << left << "," << top << "," << right << "," << bottom << std::endl;
     cv::rectangle(
       in_image_ptr->image, cv::Point(left, top), cv::Point(right, bottom), cv::Scalar(0, 0, 255), 3,
       8, 0);

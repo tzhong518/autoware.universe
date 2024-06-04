@@ -169,6 +169,12 @@ private:
   void preprocessGpu(const std::vector<cv::Mat> & images);
 
   /**
+   * @brief run preprocess on GPU
+   * @param[in] images batching images
+   */
+  void dacup_preprocessGpu(const std::vector<cv::Mat> & images);
+
+  /**
    * @brief run preprocess including resizing, letterbox, NHWC2NCHW and toFloat on CPU
    * @param[in] images batching images
    * @param[in] rois region of interest
@@ -203,6 +209,9 @@ private:
 
   bool feedforward(const std::vector<cv::Mat> & images, ObjectArrays & objects);
   bool feedforwardAndDecode(
+    const std::vector<cv::Mat> & images, ObjectArrays & objects, std::vector<cv::Mat> & masks,
+    std::vector<cv::Mat> & color_masks);
+  bool dacup_feedforwardAndDecode(
     const std::vector<cv::Mat> & images, ObjectArrays & objects, std::vector<cv::Mat> & masks,
     std::vector<cv::Mat> & color_masks);
   void decodeOutputs(float * prob, ObjectArray & objects, float scale, cv::Size & img_size) const;
@@ -253,7 +262,14 @@ private:
    */
   cv::Mat getMaskImageGpu(float * d_prob, nvinfer1::Dims dims, int out_w, int out_h, int b);
 
+  cv::Mat getAnomalyImage(float * anomaly, nvinfer1::Dims dims, int out_w, int out_h);
+
+  cv::Mat getAnomalyBox(
+    float * segmentation, float * anomaly, ObjectArray & objects, cv::Size & img_size, float scale,
+    nvinfer1::Dims dims, int out_w, int out_h);
+
   std::unique_ptr<tensorrt_common::TrtCommon> trt_common_;
+  std::unique_ptr<tensorrt_common::TrtCommon> trt_common_dacup_;
 
   std::vector<float> input_h_;
   CudaUniquePtr<float[]> input_d_;
@@ -316,6 +332,16 @@ private:
   CudaUniquePtrHost<float[]> backbonefeature_out_prob_h_;
   size_t backbonefeature_out_elem_num_;
   size_t backbonefeature_out_elem_num_per_batch_;
+
+  CudaUniquePtr<float[]> dacup_backbonefeatures_in_d_;
+  CudaUniquePtr<float[]> dacup_segmentation_in_d_;
+  CudaUniquePtr<float[]> dacup_image_in_d_;
+  // output
+  CudaUniquePtr<float[]> anomaly_out_d_;
+  CudaUniquePtrHost<float[]> anomaly_out_h_;
+  size_t anomaly_out_elem_num_;
+  size_t anomaly_out_elem_num_per_batch_;
+  std::vector<cv::Mat> anomaly_masks_;
 };
 
 }  // namespace tensorrt_yolox
