@@ -326,9 +326,13 @@ TrtYoloX::TrtYoloX(
 
     bool dacup_ = true;
     if (dacup_) {  // Allocate buffer for backbonefeature
-      const std::string dacup_model_path =
-        "/home/tzhong/autoware_data/tensorrt_yolox/"
-        "dacup_onnxhead_960960_feature0_16cls_latest.onnx";
+      std::string fnd = ".onnx";
+      std::string rep = "_dacup.onnx";
+      std::string buf = model_path;
+      const std::string dacup_model_path = buf.replace(buf.find(fnd), fnd.length(), rep);
+      // const std::string dacup_model_path =
+      //   "/home/tzhong/autoware_data/tensorrt_yolox/"
+      //   "dacup_onnxhead_960960_feature0_16cls_latest.onnx";
       // "/home/tzhong/autoware_data/tensorrt_yolox/dacup_onnxhead_960960_feature0_latest.onnx";
       trt_common_dacup_ = std::make_unique<tensorrt_common::TrtCommon>(
         dacup_model_path, precision, std::move(calibrator), batch_config, max_workspace_size,
