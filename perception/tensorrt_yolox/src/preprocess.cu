@@ -162,29 +162,11 @@ __global__ void resize_bilinear_nhwc_to_nchw32_batch_kernel(
 
   int src_h_idx = lroundf(centroid_h) - 1;
   int src_w_idx = lroundf(centroid_w) - 1;
-  if (src_h_idx < 0) {
-    src_h_idx = 0;
-  }
-  if (src_w_idx < 0) {
-    src_w_idx = 0;
-  }
+  src_h_idx = (src_h_idx < 0) ? 0 : src_h_idx;
+  src_h_idx = (src_h_idx >= (src_h - 1)) ? src_h - 2 : src_h_idx;
+  src_w_idx = (src_w_idx < 0) ? 0 : src_w_idx;
+  src_w_idx = (src_w_idx >= (src_w - 1)) ? src_w - 2 : src_w_idx;
 
-  index = C * w + C * W * h;
-  // Unroll
-  // int b;
-  // for (b = 0; b < batch; b++) {
-  //   for (c = 0; c < C; c++) {
-  //     f00 = n * src_h * src_w * C + src_h_idx * src_w * C + src_w_idx * C + c;
-  //     f01 = n * src_h * src_w * C + src_h_idx * src_w * C + (src_w_idx + 1) * C + c;
-  //     f10 = n * src_h * src_w * C + (src_h_idx + 1) * src_w * C + src_w_idx * C + c;
-  //     f11 = n * src_h * src_w * C + (src_h_idx + 1) * src_w * C + (src_w_idx + 1) * C + c;
-
-  //     float rs = lroundf(lerp2d(
-  //       (int)src_img[f00], (int)src_img[f01], (int)src_img[f10], (int)src_img[f11], centroid_h,
-  //       centroid_w));
-  //     dst_img[index + c] = (unsigned char)rs;
-  //   }
-  // }
   int stride = src_w * C;
   int b_stride = src_h * src_w * C;
   int b;
@@ -566,14 +548,6 @@ __global__ void resize_bilinear_batch_kernel(
   int H = dst_h;
   int W = dst_w;
   int c = 0;
-  // // w * h * b
-  // float rgb_mean[] = {0.485, 0.456, 0.406};
-  // float rgb_std[] = {1.0 / 0.229, 1.0 / 0.224, 1.0 / 0.225};
-  // // int dst_index = w + (W * h) + (W * H * c) + b * (W * H * C);
-  // // for (c = 0; c < 3; c++){
-  // printf("rgb_mean:%f", rgb_mean[0]);
-  // printf("rgb_std:%f", rgb_std[0]);
-  // }
 
   int w = index % W;
   int h = index / (W);
@@ -602,9 +576,6 @@ __global__ void resize_bilinear_batch_kernel(
       f10 = src_w_idx + (src_w * (src_h_idx+1)) + (src_w * src_h * c) + b * (src_w * src_h * C);
       f11 = src_w_idx + 1 + (src_w * (src_h_idx+1)) + (src_w * src_h * c) + b * (src_w * src_h * C);
 
-      // float rs = lroundf(lerp2d(
-      //     (int)src_img[f00], (int)src_img[f01], (int)src_img[f10], (int)src_img[f11], centroid_h,
-      //     centroid_w));
       float rs = lroundf(lerp2d(
           (float)src_img[f00], (float)src_img[f01], (float)src_img[f10], (float)src_img[f11], centroid_h,
           centroid_w));
@@ -613,22 +584,7 @@ __global__ void resize_bilinear_batch_kernel(
       int dst_index = w + (dst_w * h) + (dst_w * dst_h * c) + b * (dst_w * dst_h * src_c);
 
       dst_img[dst_index] = (float)rs;
-      dst_img[dst_index] = (dst_img[dst_index]);//* norm );// - 0.485) * 4.36;
-      // if (C==3 && norm < 1) {
-      //   if (c==2) {
-      //     dst_img[dst_index] = (dst_img[dst_index] - 0.485) * 4.36;
-      //     // dst_img[dst_index] = (dst_img[dst_index] - rgb_mean[c]) * rgb_std[c];
-      //     }
-      //   if (c==1) {
-      //     dst_img[dst_index] = (dst_img[dst_index] - 0.456) * 4.46;
-      //     // dst_img[dst_index] = (dst_img[dst_index] - rgb_mean[c]) * rgb_std[c];
-      //     }
-      //   if (c==0) {
-      //     dst_img[dst_index] = (dst_img[dst_index] - 0.406) * 4.44;
-      //     // dst_img[dst_index] = (dst_img[dst_index] - rgb_mean[c]) * rgb_std[c];
-      //     }
-      //   // dst_img[dst_index] = dst_img[dst_index] * norm;
-      // }
+      dst_img[dst_index] = (dst_img[dst_index]);
     }
   }
 }

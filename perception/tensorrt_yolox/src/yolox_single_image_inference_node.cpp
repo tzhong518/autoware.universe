@@ -44,7 +44,7 @@ public:
     const auto output_image_path =
       declare_parameter("output_image_path", p.string() + "_detect" + ext);
 
-    auto trt_yolox = std::make_unique<tensorrt_yolox::TrtYoloX>(model_path, precision);
+    auto trt_yolox = std::make_unique<tensorrt_yolox::TrtYoloX>(model_path, false, precision);
     auto image = cv::imread(image_path);
     tensorrt_yolox::ObjectArrays objects;
     std::vector<cv::Mat> masks;
