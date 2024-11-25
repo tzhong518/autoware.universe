@@ -1362,8 +1362,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../common/traffic_light_recognition_marker_publisher/Readme" class="md-nav__link">
-        traffic_light_recognition_marker_publisher
+      <a href="../../common/autoware_traffic_light_recognition_marker_publisher/Readme" class="md-nav__link">
+        autoware_traffic_light_recognition_marker_publisher
       </a>
     </li>
   
@@ -10867,12 +10867,18 @@
             
           
         
+          
+        
       
       
         
         
         <div class="md-nav__link md-nav__link--index ">
           <a href="../../simulator/simple_planning_simulator/">Simple planning simulator</a>
+          
+            <label for="__nav_10_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
           
         </div>
       
@@ -10883,6 +10889,60 @@
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10_5_2" >
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_10_5_2" id="__nav_10_5_2_label" tabindex="0">
+          Docs
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_5_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_10_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          Docs
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulator/simple_planning_simulator/docs/actuation_cmd_sim/" class="md-nav__link">
+        ACTUATION_CMD model
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
             
           
         </ul>
@@ -13499,6 +13559,23 @@ filtering.</p>
 </ul>
 </li>
 </ul>
+<p>Publish the following messages.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/output/predicted_trajectory</code></td>
+<td>autoware_planning_msgs::Trajectory</td>
+<td>Predicted trajectory calculated by MPC. The trajectory size will be empty when the controller is in an emergency such as too large deviation from the planning trajectory.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="mpc-class">MPC class<a class="headerlink" href="#mpc-class" title="Permanent link">#</a></h3>
 <p>The <code>MPC</code> class (defined in <code>mpc.hpp</code>) provides the interface with the MPC algorithm.
 Once a vehicle model, a QP solver, and the reference trajectory to follow have been set
