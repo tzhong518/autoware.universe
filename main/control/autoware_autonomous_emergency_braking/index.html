@@ -854,7 +854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../common/global_parameter_loader/Readme" class="md-nav__link">
+      <a href="../../common/autoware_global_parameter_loader/Readme" class="md-nav__link">
         Global Parameter Loader
       </a>
     </li>
@@ -868,7 +868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../common/glog_component" class="md-nav__link">
+      <a href="../../common/autoware_glog_component" class="md-nav__link">
         Glog Component
       </a>
     </li>
@@ -10481,39 +10481,6 @@
       
         
           
-        
-      
-      
-        <label class="md-nav__link" for="__nav_9_12" id="__nav_9_12_label" tabindex="0">
-          Livox
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_12_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_9_12">
-          <span class="md-nav__icon md-icon"></span>
-          Livox
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-        
-      
-      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9_12_1" >
-      
-      
-        
-          
             
           
         
@@ -10522,24 +10489,17 @@
         
         
         <div class="md-nav__link md-nav__link--index ">
-          <a href="../../sensing/livox/autoware_livox_tag_filter/">Autoware livox tag filter</a>
+          <a href="../../sensing/autoware_vehicle_velocity_converter/">Autoware vehicle velocity converter</a>
           
         </div>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_12_1_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_9_12_1">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_12_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9_12">
           <span class="md-nav__icon md-icon"></span>
-          Autoware livox tag filter
+          Autoware vehicle velocity converter
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
             
           
         </ul>
@@ -10569,6 +10529,39 @@
       
         
           
+        
+      
+      
+        <label class="md-nav__link" for="__nav_9_13" id="__nav_9_13_label" tabindex="0">
+          Livox
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_13_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9_13">
+          <span class="md-nav__icon md-icon"></span>
+          Livox
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9_13_1" >
+      
+      
+        
+          
             
           
         
@@ -10577,17 +10570,24 @@
         
         
         <div class="md-nav__link md-nav__link--index ">
-          <a href="../../sensing/vehicle_velocity_converter/">Vehicle velocity converter</a>
+          <a href="../../sensing/livox/autoware_livox_tag_filter/">Autoware livox tag filter</a>
           
         </div>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_13_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_9_13">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_13_1_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_9_13_1">
           <span class="md-nav__icon md-icon"></span>
-          Vehicle velocity converter
+          Autoware livox tag filter
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
             
           
         </ul>
@@ -13599,7 +13599,7 @@
 <li>When the ego vehicle is not moving (Current Velocity is below a 0.1 m/s threshold)</li>
 </ul>
 <h3 id="2-generate-a-predicted-path-of-the-ego-vehicle">2. Generate a predicted path of the ego vehicle<a class="headerlink" href="#2-generate-a-predicted-path-of-the-ego-vehicle" title="Permanent link">#</a></h3>
-<h4 id="imu-path-generation">IMU path generation<a class="headerlink" href="#imu-path-generation" title="Permanent link">#</a></h4>
+<h4 id="21-overview-of-imu-path-generation">2.1 Overview of IMU Path Generation<a class="headerlink" href="#21-overview-of-imu-path-generation" title="Permanent link">#</a></h4>
 <p>AEB generates a predicted footprint path based on current velocity and current angular velocity obtained from attached sensors. Note that if <code>use_imu_path</code> is <code>false</code>, it skips this step. This predicted path is generated as:</p>
 <div class="arithmatex">\[
 x_{k+1} = x_k + v cos(\theta_k) dt \\
@@ -13607,11 +13607,97 @@ y_{k+1} = y_k + v sin(\theta_k) dt \\
 \theta_{k+1} = \theta_k + \omega dt
 \]</div>
 <p>where <span class="arithmatex">\(v\)</span> and <span class="arithmatex">\(\omega\)</span> are current longitudinal velocity and angular velocity respectively. <span class="arithmatex">\(dt\)</span> is time interval that users can define in advance with the <code>imu_prediction_time_interval</code> parameter. The IMU path is generated considering a time horizon, defined by the <code>imu_prediction_time_horizon</code> parameter.</p>
-<p>Since the IMU path generation only uses the ego vehicle's current angular velocity, disregarding the MPC's planner steering, the shape of the IMU path tends to get distorted quite easily and protrude out of the ego vehicle's current lane, possibly causing unwanted emergency stops. That is why it is not recommended to use a big <code>imu_prediction_time_horizon</code>. To fix this issue, the IMU path's length can be cut short by tuning the <code>max_generated_imu_path_length</code> parameter, the IMU path generation will be cut short once its length surpasses this parameter's value.</p>
-<p>It is also possible to limit the IMU path length based on the predicted lateral deviation of the vehicle by setting the <code>limit_imu_path_lat_dev</code> parameter flag to "true", and setting a threshold lateral deviation with the <code>imu_path_lat_dev_threshold</code> parameter. That way, the AEB will generate a predicted IMU path until a given predicted ego pose surpasses the lateral deviation threshold, and the IMU path will be cut short when the ego vehicle is turning relatively fast.</p>
-<p>The advantage of setting a lateral deviation limit with the <code>limit_imu_path_lat_dev</code> parameter is that the <code>imu_prediction_time_horizon</code> and the <code>max_generated_imu_path_length</code> can be increased without worries about the IMU predicted path deforming beyond a certain threshold. The downside is that the IMU path will be cut short when the ego has a high angular velocity, in said cases, the AEB module would mostly rely on the MPC path to prevent or mitigate collisions. If it is assumed the ego vehicle will mostly travel along the centerline of its lanelets, it can be useful to set the lateral deviation threshold parameter <code>imu_path_lat_dev_threshold</code> to be equal to or smaller than the average lanelet width divided by 2, that way, the chance of the IMU predicted path leaving the current ego lanelet is smaller, and it is possible to increase the <code>imu_prediction_time_horizon</code> to prevent frontal collisions when the ego is mostly traveling in a straight line.</p>
+<h4 id="22-constraints-and-countermeasures-in-imu-path-generation">2.2 Constraints and Countermeasures in IMU Path Generation<a class="headerlink" href="#22-constraints-and-countermeasures-in-imu-path-generation" title="Permanent link">#</a></h4>
+<p>Since the IMU path generation only uses the ego vehicle's current angular velocity, disregarding the MPC's planner steering, the shape of the IMU path tends to get distorted quite easily and protrude out of the ego vehicle's current lane, possibly causing unwanted emergency stops. There are two countermeasures for this issue:</p>
+<ol>
+<li>
+<p>Control using the <code>max_generated_imu_path_length</code> parameter</p>
+<ul>
+<li>Generation stops when path length exceeds the set value</li>
+<li>Avoid using a large <code>imu_prediction_time_horizon</code></li>
+</ul>
+</li>
+<li>
+<p>Control based on lateral deviation</p>
+<ul>
+<li>Set the <code>limit_imu_path_lat_dev</code> parameter to "true"</li>
+<li>Set deviation threshold using <code>imu_path_lat_dev_threshold</code></li>
+<li>Path generation stops when lateral deviation exceeds the threshold</li>
+</ul>
+</li>
+</ol>
+<h4 id="23-advantages-and-limitations-of-lateral-deviation-control">2.3 Advantages and Limitations of Lateral Deviation Control<a class="headerlink" href="#23-advantages-and-limitations-of-lateral-deviation-control" title="Permanent link">#</a></h4>
+<p>The advantage of setting a lateral deviation limit with the <code>limit_imu_path_lat_dev</code> parameter is that the <code>imu_prediction_time_horizon</code> and the <code>max_generated_imu_path_length</code> can be increased without worries about the IMU predicted path deforming beyond a certain threshold. The downside is that the IMU path will be cut short when the ego has a high angular velocity, in said cases, the AEB module would mostly rely on the MPC path to prevent or mitigate collisions.</p>
+<p>If it is assumed the ego vehicle will mostly travel along the centerline of its lanelets, it can be useful to set the lateral deviation threshold parameter <code>imu_path_lat_dev_threshold</code> to be equal to or smaller than the average lanelet width divided by 2, that way, the chance of the IMU predicted path leaving the current ego lanelet is smaller, and it is possible to increase the <code>imu_prediction_time_horizon</code> to prevent frontal collisions when the ego is mostly traveling in a straight line.</p>
 <p>The lateral deviation is measured using the ego vehicle's current position as a reference, and it measures the distance of the furthermost vertex of the predicted ego footprint to the predicted path. The following image illustrates how the lateral deviation of a given ego pose is measured.</p>
 <p><img alt="measuring_lat_dev" src="image/measuring-lat-dev-on-imu-path.drawio.svg"></p>
+<h4 id="24-imu-path-generation-algorithm">2.4 IMU Path Generation Algorithm<a class="headerlink" href="#24-imu-path-generation-algorithm" title="Permanent link">#</a></h4>
+<h5 id="241-selection-of-lateral-deviation-check-points">2.4.1 Selection of Lateral Deviation Check Points<a class="headerlink" href="#241-selection-of-lateral-deviation-check-points" title="Permanent link">#</a></h5>
+<p>Select vehicle vertices for lateral deviation checks based on the following conditions:</p>
+<ul>
+<li>Forward motion (<span class="arithmatex">\(v &gt; 0\)</span>)<ul>
+<li>Right turn (<span class="arithmatex">\(\omega &gt; 0\)</span>): Right front vertex</li>
+<li>Left turn (<span class="arithmatex">\(\omega &lt; 0\)</span>): Left front vertex</li>
+</ul>
+</li>
+<li>Reverse motion (<span class="arithmatex">\(v &lt; 0\)</span>)<ul>
+<li>Right turn (<span class="arithmatex">\(\omega &gt; 0\)</span>): Right rear vertex</li>
+<li>Left turn (<span class="arithmatex">\(\omega &lt; 0\)</span>): Left rear vertex</li>
+</ul>
+</li>
+<li>Straight motion (<span class="arithmatex">\(\omega = 0\)</span>): Check both front/rear vertices depending on forward/reverse motion</li>
+</ul>
+<h5 id="242-path-generation-process">2.4.2 Path Generation Process<a class="headerlink" href="#242-path-generation-process" title="Permanent link">#</a></h5>
+<p>Execute the following steps at each time step:</p>
+<ol>
+<li>
+<p>State Update</p>
+<ul>
+<li>Calculate next position <span class="arithmatex">\((x_{k+1}, y_{k+1})\)</span> and yaw angle <span class="arithmatex">\(\theta_{k+1}\)</span> based on current velocity <span class="arithmatex">\(v\)</span> and angular velocity <span class="arithmatex">\(\omega\)</span></li>
+<li>Time interval <span class="arithmatex">\(dt\)</span> is based on the <code>imu_prediction_time_interval</code> parameter</li>
+</ul>
+</li>
+<li>
+<p>Vehicle Footprint Generation</p>
+<ul>
+<li>Place vehicle footprint at calculated position</li>
+<li>Calculate check point coordinates</li>
+</ul>
+</li>
+<li>
+<p>Lateral Deviation Calculation</p>
+<ul>
+<li>Calculate lateral deviation from selected vertex to path</li>
+<li>Update path length and elapsed time</li>
+</ul>
+</li>
+<li>
+<p>Evaluation of Termination Conditions</p>
+</li>
+</ol>
+<h5 id="243-termination-conditions">2.4.3 Termination Conditions<a class="headerlink" href="#243-termination-conditions" title="Permanent link">#</a></h5>
+<p>Path generation terminates when any of the following conditions are met:</p>
+<ol>
+<li>
+<p>Basic Termination Conditions (both must be satisfied)</p>
+<ul>
+<li>Predicted time exceeds <code>imu_prediction_time_horizon</code></li>
+<li>AND path length exceeds <code>min_generated_imu_path_length</code></li>
+</ul>
+</li>
+<li>
+<p>Path Length Termination Condition</p>
+<ul>
+<li>Path length exceeds <code>max_generated_imu_path_length</code></li>
+</ul>
+</li>
+<li>
+<p>Lateral Deviation Termination Condition (when <code>limit_imu_path_lat_dev = true</code>)</p>
+<ul>
+<li>Lateral deviation of selected vertex exceeds <code>imu_path_lat_dev_threshold</code></li>
+</ul>
+</li>
+</ol>
 <h4 id="mpc-path-generation">MPC path generation<a class="headerlink" href="#mpc-path-generation" title="Permanent link">#</a></h4>
 <p>If the <code>use_predicted_trajectory</code> parameter is set to true, the AEB module will directly use the predicted path from the MPC as a base to generate a footprint path. It will copy the ego poses generated by the MPC until a given time horizon. The <code>mpc_prediction_time_horizon</code> parameter dictates how far ahead in the future the MPC path will predict the ego vehicle's movement. Both the IMU footprint path and the MPC footprint path can be used at the same time.</p>
 <h3 id="3-get-target-obstacles">3. Get target obstacles<a class="headerlink" href="#3-get-target-obstacles" title="Permanent link">#</a></h3>
@@ -13828,7 +13914,7 @@ d = v_{ego}*t_{response} + v_{ego}^2/(2*a_{min}) -(sign(v_{obj})) * v_{obj}^2/(2
 <td align="left">0.1</td>
 </tr>
 <tr>
-<td align="left">longitudinal_offset</td>
+<td align="left">longitudinal_offset_margin</td>
 <td align="left">[m]</td>
 <td align="left">double</td>
 <td align="left">longitudinal offset distance for collision check</td>
