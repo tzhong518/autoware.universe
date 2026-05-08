@@ -14,13 +14,22 @@
 
 #include "autoware/image_ego_mask/ego_mask_node.hpp"
 
-#include <cv_bridge/cv_bridge.hpp>
+#if __has_include(<cv_bridge/cv_bridge.hpp>)
+#include <cv_bridge/cv_bridge.hpp>  // for ROS 2 Jazzy or newer
+#else
+#include <cv_bridge/cv_bridge.h>  // for ROS 2 Humble or older
+#endif
 
 #include <opencv2/imgproc.hpp>
 
+#include <yaml-cpp/yaml.h>
+
 #include <algorithm>
+#include <fstream>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 namespace autoware::image_preprocessor
@@ -39,6 +48,103 @@ bool isBgrLike(const std::string & enc)
          enc == sensor_msgs::image_encodings::TYPE_8UC3;
 }
 
+std::string loadTextFile(const std::string & path)
+{
+  std::ifstream stream(path, std::ios::in | std::ios::binary);
+  if (!stream) {
+    throw std::runtime_error("Could not open polygons YAML file: " + path);
+  }
+  std::stringstream buffer;
+  buffer << stream.rdbuf();
+  return buffer.str();
+}
+
+struct ParsedPolygon
+{
+  std::vector<double> points;
+  bool normalized{false};
+};
+
+/** Root YAML mapping:
+ *  polygons: list of [x0,y0,...] OR list of {points: [...], normalized: bool}
+ *  polygons_normalized: optional bool list (parallel to polygons when using simple lists)
+ */
+std::vector<ParsedPolygon> parsePolygonsYaml(const std::string & yaml_text)
+{
+  const auto trim_empty = [](const std::string & s) -> bool {
+    return s.find_first_not_of(" \t\n\r\f\v") == std::string::npos;
+  };
+  if (yaml_text.empty() || trim_empty(yaml_text)) {
+    return {};
+  }
+
+  YAML::Node root = YAML::Load(yaml_text);
+  if (!root.IsMap()) {
+    throw std::runtime_error("polygons YAML: root must be a mapping (e.g. 'polygons: [...]').");
+  }
+
+  std::vector<bool> normalized_parallel;
+  if (root["polygons_normalized"]) {
+    const YAML::Node nn = root["polygons_normalized"];
+    if (!nn.IsSequence()) {
+      throw std::runtime_error("polygons YAML: 'polygons_normalized' must be a sequence of booleans.");
+    }
+    for (const auto & item : nn) {
+      normalized_parallel.push_back(item.as<bool>());
+    }
+  }
+
+  const YAML::Node polys = root["polygons"];
+  if (!polys.IsDefined() || polys.IsNull()) {
+    return {};
+  }
+  if (!polys.IsSequence()) {
+    throw std::runtime_error("polygons YAML: 'polygons' must be a sequence.");
+  }
+
+  if (!normalized_parallel.empty() && normalized_parallel.size() != polys.size()) {
+    throw std::runtime_error(
+      "polygons YAML: 'polygons_normalized' must be the same length as 'polygons' when provided.");
+  }
+
+  std::vector<ParsedPolygon> out;
+  out.reserve(polys.size());
+  for (std::size_t i = 0; i < polys.size(); ++i) {
+    const YAML::Node & pn = polys[i];
+    ParsedPolygon spec{};
+
+    if (pn.IsSequence()) {
+      for (const auto & v : pn) {
+        spec.points.push_back(v.as<double>());
+      }
+      if (i < normalized_parallel.size()) {
+        spec.normalized = normalized_parallel[i];
+      }
+    } else if (pn.IsMap()) {
+      if (!pn["points"] || !pn["points"].IsSequence()) {
+        throw std::runtime_error("polygons YAML: each map entry must have a 'points' sequence.");
+      }
+      for (const auto & v : pn["points"]) {
+        spec.points.push_back(v.as<double>());
+      }
+      if (pn["normalized"]) {
+        spec.normalized = pn["normalized"].as<bool>();
+      } else if (i < normalized_parallel.size()) {
+        spec.normalized = normalized_parallel[i];
+      }
+    } else {
+      throw std::runtime_error("polygons YAML: each polygon must be a number sequence or a map with 'points'.");
+    }
+
+    if (spec.points.size() < 6 || (spec.points.size() % 2) != 0) {
+      throw std::runtime_error(
+        "polygons YAML: each polygon must have an even length >= 6 (at least 3 (x,y) points).");
+    }
+    out.push_back(std::move(spec));
+  }
+  return out;
+}
+
 }  // namespace
 
 EgoMaskNode::EgoMaskNode(const rclcpp::NodeOptions & options)
@@ -49,33 +155,49 @@ EgoMaskNode::EgoMaskNode(const rclcpp::NodeOptions & options)
   input_transport_ = declare_parameter<std::string>("input_transport", "raw");
   output_transport_ = declare_parameter<std::string>("output_transport", "raw");
 
+  // Absolute or relative image_transport base topic (no /compressed suffix).
+  // If empty, defaults to private ~/input/image and ~/output/image (remaps may not
+  // apply to image_transport plugin subscriptions; prefer these params for wiring).
+  const std::string input_base_param =
+    declare_parameter<std::string>("input_image_base_topic", "");
+  const std::string output_base_param =
+    declare_parameter<std::string>("output_image_base_topic", "");
+  const std::string in_base =
+    input_base_param.empty() ? std::string("~/input/image") : input_base_param;
+  const std::string out_base =
+    output_base_param.empty() ? std::string("~/output/image") : output_base_param;
+
   fill_value_bgr_ = declare_parameter<std::vector<double>>("fill_value_bgr", {0.0, 0.0, 0.0});
   if (fill_value_bgr_.size() != 3) {
     throw std::runtime_error("Parameter 'fill_value_bgr' must have 3 elements.");
   }
 
-  // polygons: list of flattened point arrays, each as [x0,y0,x1,y1,...]
-  // polygons_normalized: optional list<bool> same size; if true interpret points as [0..1] ratios.
-  const auto polygons = declare_parameter<std::vector<std::vector<double>>>("polygons", {});
-  const auto polygons_normalized = declare_parameter<std::vector<bool>>("polygons_normalized", {});
-  if (!polygons_normalized.empty() && polygons_normalized.size() != polygons.size()) {
-    throw std::runtime_error("Parameter 'polygons_normalized' must be empty or same size as 'polygons'.");
+  // Polygon geometry is YAML-only: use polygons_yaml_file (path) and/or polygons_yaml (inline body).
+  // If polygons_yaml_file is non-empty it is read first; otherwise polygons_yaml is parsed.
+  const std::string yaml_file = declare_parameter<std::string>("polygons_yaml_file", "");
+  const std::string yaml_inline = declare_parameter<std::string>("polygons_yaml", "");
+  std::string yaml_body;
+  if (!yaml_file.empty()) {
+    yaml_body = loadTextFile(yaml_file);
+  } else if (!yaml_inline.empty()) {
+    yaml_body = yaml_inline;
   }
-  polygons_.reserve(polygons.size());
-  for (size_t i = 0; i < polygons.size(); ++i) {
+  const auto parsed = parsePolygonsYaml(yaml_body);
+  polygons_.reserve(parsed.size());
+  for (const auto & item : parsed) {
     PolygonSpec p;
-    p.points = polygons[i];
-    if (p.points.size() < 6 || (p.points.size() % 2) != 0) {
-      throw std::runtime_error("Each polygon in 'polygons' must have even length >= 6.");
-    }
-    p.normalized = polygons_normalized.empty() ? false : polygons_normalized[i];
+    p.points = item.points;
+    p.normalized = item.normalized;
     polygons_.push_back(std::move(p));
   }
 
-  pub_ = image_transport::create_publisher(this, "~/output/image", rmw_qos_profile_sensor_data);
+  pub_ = image_transport::create_publisher(this, out_base, rmw_qos_profile_sensor_data);
   sub_ = image_transport::create_subscription(
-    this, "~/input/image", std::bind(&EgoMaskNode::onImage, this, std::placeholders::_1),
-    input_transport_, rmw_qos_profile_sensor_data);
+    this, in_base, std::bind(&EgoMaskNode::onImage, this, std::placeholders::_1), input_transport_,
+    rmw_qos_profile_sensor_data);
+  RCLCPP_INFO(
+    get_logger(), "image_transport subscribe base '%s' (%s), publish base '%s' (%s)", in_base.c_str(),
+    input_transport_.c_str(), out_base.c_str(), output_transport_.c_str());
 }
 
 cv::Scalar EgoMaskNode::fillScalarForEncoding(const std::string & encoding) const

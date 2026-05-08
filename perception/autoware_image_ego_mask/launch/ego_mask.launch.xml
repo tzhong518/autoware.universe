@@ -6,23 +6,16 @@
   <!-- Fill value applied inside polygons, interpreted as BGR [0..255] -->
   <arg name="fill_value_bgr" default="[0.0, 0.0, 0.0]"/>
 
-  <!--
-    polygons: list of polygons, each polygon is [x0, y0, x1, y1, ...].
-    polygons_normalized: optional list<bool>, if true points are normalized [0..1] ratios.
-  -->
-  <arg name="polygons" default="[]"/>
-  <arg name="polygons_normalized" default="[]"/>
+  <!-- Path to YAML defining polygons (see config/example_polygons.yaml). Empty disables file load. -->
+  <arg name="polygons_yaml_file" default="$(find-pkg-share autoware_image_ego_mask)/config/example_polygons.yaml"/>
 
   <node pkg="autoware_image_ego_mask" exec="ego_mask_node" name="ego_mask" output="screen">
-    <remap from="~/input/image" to="$(var input/image)"/>
-    <remap from="~/output/image" to="$(var output/image)"/>
-
     <param name="enabled" value="true"/>
     <param name="input_transport" value="raw"/>
     <param name="output_transport" value="raw"/>
+    <param name="input_image_base_topic" value="$(var input/image)"/>
+    <param name="output_image_base_topic" value="$(var output/image)"/>
     <param name="fill_value_bgr" value="$(var fill_value_bgr)"/>
-    <param name="polygons" value="$(var polygons)"/>
-    <param name="polygons_normalized" value="$(var polygons_normalized)"/>
+    <param name="polygons_yaml_file" value="$(var polygons_yaml_file)"/>
   </node>
 </launch>
-
